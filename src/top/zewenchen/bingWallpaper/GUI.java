@@ -22,6 +22,14 @@ import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
+import java.awt.Button;
+import javax.swing.JMenuItem;
+import javax.swing.JMenu;
+import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JSlider;
+import javax.swing.JSeparator;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 public class GUI {
 
@@ -56,6 +64,9 @@ public class GUI {
 	 */
 	private void initialize() {
 		frmBingWallpaper = new JFrame();
+		frmBingWallpaper.getContentPane().setFont(new Font("幼圆", Font.PLAIN, 12));
+		frmBingWallpaper.setFont(new Font("幼圆", Font.PLAIN, 12));
+		frmBingWallpaper.setAutoRequestFocus(false);
 		frmBingWallpaper.setTitle("Bing Wallpaper Downloader");
 		frmBingWallpaper.setIconImage(Toolkit.getDefaultToolkit()
 				.getImage(GUI.class.getResource("/top/zewenchen/bingWallpaper/bing_logo.png")));
@@ -65,19 +76,60 @@ public class GUI {
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
+		menuBar.setFont(new Font("幼圆", Font.PLAIN, 12));
 		frmBingWallpaper.setJMenuBar(menuBar);
-
-		JButton button = new JButton("关于");
-		menuBar.add(button);
+		
+		JMenu menu_2 = new JMenu("设置");
+		menu_2.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu_2.setBackground(new Color(240, 240, 240));
+		menuBar.add(menu_2);
+		
+		JRadioButtonMenuItem radioButtonMenuItem = new JRadioButtonMenuItem("下载图片质量");
+		radioButtonMenuItem.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu_2.add(radioButtonMenuItem);
+		
+		JRadioButtonMenuItem radioButtonMenuItem_1 = new JRadioButtonMenuItem("下载图片日期设定");
+		radioButtonMenuItem_1.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu_2.add(radioButtonMenuItem_1);
+		
+		JRadioButtonMenuItem radioButtonMenuItem_2 = new JRadioButtonMenuItem("注册系统任务计划");
+		radioButtonMenuItem_2.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu_2.add(radioButtonMenuItem_2);
+		
+		JMenu menu = new JMenu("使用帮助");
+		menu.setFont(new Font("宋体", Font.PLAIN, 12));
+		menuBar.add(menu);
+		
+		JMenuItem menuItem_1 = new JMenuItem("常用设置说明");
+		menuItem_1.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu.add(menuItem_1);
+		
+		JMenuItem mntmFqa = new JMenuItem("FQA");
+		mntmFqa.setFont(new Font("Arial", Font.PLAIN, 12));
+		menu.add(mntmFqa);
+		
+		JMenu menu_1 = new JMenu("关于");
+		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
+		menuBar.add(menu_1);
+		
+		JMenuItem menuItem = new JMenuItem("关于下载器");
+		menuItem.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				
+			}
+		});
+		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
+		menu_1.add(menuItem);
 		frmBingWallpaper.getContentPane().setLayout(null);
 
 		JLabel lblNewLabel = new JLabel("壁纸路径");
 		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 14));
-		lblNewLabel.setBounds(10, 555, 71, 21);
+		lblNewLabel.setBounds(8, 570, 71, 21);
 		frmBingWallpaper.getContentPane().add(lblNewLabel);
 
 		text_path = new JTextField();
-		text_path.setBounds(83, 555, 757, 21);
+		text_path.setBounds(81, 570, 757, 21);
 		frmBingWallpaper.getContentPane().add(text_path);
 		text_path.setColumns(10);
 
@@ -104,7 +156,7 @@ public class GUI {
 				}
 			}
 		});
-		btn_chosesPath.setBounds(850, 555, 93, 23);
+		btn_chosesPath.setBounds(848, 570, 93, 23);
 		frmBingWallpaper.getContentPane().add(btn_chosesPath);
 
 		JButton btn_download = new JButton("开始下载");
@@ -116,7 +168,7 @@ public class GUI {
 				System.out.println("下载路径已修改为 " + Bing.path);
 			}
 		});
-		btn_download.setBounds(10, 587, 933, 38);
+		btn_download.setBounds(8, 602, 933, 38);
 		frmBingWallpaper.getContentPane().add(btn_download);
 
 		// 预览图片
@@ -144,8 +196,13 @@ public class GUI {
 			ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 			JLabel pic = new JLabel(icon);
 			pic.setBackground(new Color(0, 0, 0));
-			pic.setBounds(0, 0, 960, 540);
+			pic.setBounds(8, 8, 960, 540);
 			frmBingWallpaper.getContentPane().add(pic);
+			
+			JSeparator separator = new JSeparator();
+			separator.setForeground(Color.GRAY);
+			separator.setBounds(0, 558, 953, 2);
+			frmBingWallpaper.getContentPane().add(separator);
 		} catch (Exception e1) { 
 			e1.printStackTrace();
 		}
