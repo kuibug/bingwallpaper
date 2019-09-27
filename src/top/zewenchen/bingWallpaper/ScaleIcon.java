@@ -1,16 +1,19 @@
 package top.zewenchen.bingWallpaper;
 
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
- 
+ /**
+  * 自动将Icon缩放到和窗口一样大小
+  * @author craftsman
+  * @date 2019年9月27日
+  */
 public class ScaleIcon implements Icon {
  
-    private BufferedImage i = null;
     private Icon icon = null;
  
     public ScaleIcon(Icon icon) {
@@ -37,18 +40,6 @@ public class ScaleIcon implements Icon {
         g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
         g2d.scale(wid / iconWid, hei / iconHei);
         icon.paintIcon(c, g2d, 0, 0);
-    }
- 
-    public static void main(String[] args) {
-        ScaleIcon icon = new ScaleIcon(new ImageIcon(ClassLoader.getSystemResource("img/main.jpg")));
-        JLabel label = new JLabel(icon);
-        JFrame frame = new JFrame();
-        frame.getContentPane().add(label, BorderLayout.CENTER);
-//                frame.getContentPane().add(new JButton("click"),BorderLayout.NORTH);
-        frame.setSize(800, 600);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
     }
 
 }

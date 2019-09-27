@@ -11,22 +11,19 @@ import javax.swing.JButton;
 import javax.swing.JFileChooser;
 
 import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.FileInputStream;
+import java.net.URL;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
+import java.awt.Image;
 
-import javax.imageio.ImageIO;
 import javax.swing.JTextField;
 import java.awt.Color;
 import java.awt.SystemColor;
 import java.awt.Toolkit;
-import java.awt.Button;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
-import javax.swing.JSlider;
 import javax.swing.JSeparator;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -64,6 +61,7 @@ public class GUI {
 	 */
 	private void initialize() {
 		frmBingWallpaper = new JFrame();
+		frmBingWallpaper.setResizable(false);
 		frmBingWallpaper.getContentPane().setFont(new Font("幼圆", Font.PLAIN, 12));
 		frmBingWallpaper.setFont(new Font("幼圆", Font.PLAIN, 12));
 		frmBingWallpaper.setAutoRequestFocus(false);
@@ -72,51 +70,51 @@ public class GUI {
 				.getImage(GUI.class.getResource("/top/zewenchen/bingWallpaper/bing_logo.png")));
 		frmBingWallpaper.getContentPane().setBackground(new Color(255, 255, 255));
 		frmBingWallpaper.setBackground(new Color(255, 255, 255));
-		frmBingWallpaper.setBounds(100, 100, 969, 710);
+		frmBingWallpaper.setBounds(50, 50, 980, 700);
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setFont(new Font("幼圆", Font.PLAIN, 12));
 		frmBingWallpaper.setJMenuBar(menuBar);
-		
+
 		JMenu menu_2 = new JMenu("设置");
 		menu_2.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_2.setBackground(new Color(240, 240, 240));
 		menuBar.add(menu_2);
-		
+
 		JRadioButtonMenuItem radioButtonMenuItem = new JRadioButtonMenuItem("下载图片质量");
 		radioButtonMenuItem.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_2.add(radioButtonMenuItem);
-		
+
 		JRadioButtonMenuItem radioButtonMenuItem_1 = new JRadioButtonMenuItem("下载图片日期设定");
 		radioButtonMenuItem_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_2.add(radioButtonMenuItem_1);
-		
+
 		JRadioButtonMenuItem radioButtonMenuItem_2 = new JRadioButtonMenuItem("注册系统任务计划");
 		radioButtonMenuItem_2.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_2.add(radioButtonMenuItem_2);
-		
+
 		JMenu menu = new JMenu("使用帮助");
 		menu.setFont(new Font("宋体", Font.PLAIN, 12));
 		menuBar.add(menu);
-		
+
 		JMenuItem menuItem_1 = new JMenuItem("常用设置说明");
 		menuItem_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu.add(menuItem_1);
-		
+
 		JMenuItem mntmFqa = new JMenuItem("FQA");
 		mntmFqa.setFont(new Font("Arial", Font.PLAIN, 12));
 		menu.add(mntmFqa);
-		
+
 		JMenu menu_1 = new JMenu("关于");
 		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menuBar.add(menu_1);
-		
+
 		JMenuItem menuItem = new JMenuItem("关于下载器");
 		menuItem.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				
+
 			}
 		});
 		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
@@ -164,7 +162,7 @@ public class GUI {
 		btn_download.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Bing.path = text_path.getText();
-				//TODO 这里要做一下路径校验
+				// TODO 这里要做一下路径校验
 				System.out.println("下载路径已修改为 " + Bing.path);
 			}
 		});
@@ -172,42 +170,27 @@ public class GUI {
 		frmBingWallpaper.getContentPane().add(btn_download);
 
 		// 预览图片
-//		JLabel pic = new JLabel();
-//		pic.setBackground(new Color(0, 0, 0));
-//		pic.setBounds(0, 0, 960, 540);
-//		frmBingWallpaper.getContentPane().add(pic);
-
-		// String imageUrl = "<html>验证码<img
-		// src='https://cn.bing.com/th?id=OHR.LofotenSurfing_ZH-CN5901239545_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp'
-		// height='540px' width='960px' /><html>";
-		// pic.setText(imageUrl);
-
-		String imgPath = "E:/eclipse-workspace/bingWallpaper/src/top/zewenchen/bingWallpaper/Default_1920x1080.jpg";
-		// String urlStr =
-		// "https://cn.bing.com/th?id=OHR.LofotenSurfing_ZH-CN5901239545_1920x1080.jpg&rf=LaDigue_1920x1080.jpg&pid=hp";
+		String urlStr = "https://cn.bing.com/th?id=OHR.BardenasDesert_ZH-CN1357611840_1920x1080.jpg";
 
 		// 获取图像
 		try {
-			// URL url = new URL(urlStr);
-			Toolkit toolKit = Toolkit.getDefaultToolkit();
-			//TODO　这里要读入网络图片
-			BufferedImage image = ImageIO.read(new FileInputStream(imgPath));
-			// BufferedImage image = (BufferedImage) toolKit.getImage(url);
+			URL url = new URL(urlStr);
+			Toolkit toolKit = frmBingWallpaper.getToolkit();
+			Image image = toolKit.getImage(url);
 			ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 			JLabel pic = new JLabel(icon);
-			pic.setBackground(new Color(0, 0, 0));
 			pic.setBounds(8, 8, 960, 540);
 			frmBingWallpaper.getContentPane().add(pic);
-			
+
 			JSeparator separator = new JSeparator();
 			separator.setForeground(Color.GRAY);
 			separator.setBounds(0, 558, 953, 2);
 			frmBingWallpaper.getContentPane().add(separator);
-		} catch (Exception e1) { 
+		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
 
-		//TODO 下一个版本加入上一天和下一天
-		
+		// TODO 下一个版本加入上一天和下一天
+
 	}
 }

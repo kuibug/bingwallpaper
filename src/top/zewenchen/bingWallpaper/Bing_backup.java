@@ -9,32 +9,25 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import com.alibaba.fastjson.JSON;
-
-public class Bing {
+public class Bing_backup {
 	// 保存地址(路径最后有一个/)
 	static String path = "./Bingwallpaper/";
 	// 要壁纸的上传时间-1(明天)0(今天)1(昨天)2(前天)最多回去到前7天的内容
 	static int day = 0;
-	static String urlString;
-	static String wallpaperName;
-	final static String bingSite = "https://cn.bing.com";
-	final static String pic_1080 = "_1920x1080.jpg";
-	final static String pic_720 = "_1366x768.jpg";
 
 	public static void main(String[] args) throws Exception {
 		// 先对传参进行判别
 		hasArgs(args);
 
 		// 获取下载地址
-		String str = getURL();
-		urlString = bingSite + (String) JSON.parseArray(str).getJSONObject(0).get("urlbase") + pic_1080;
+		String[] str = getURL();
+		String urlString = str[0];
 		// 获取文件名
-		wallpaperName = (String) JSON.parseArray(str).getJSONObject(0).get("startdate") + pic_1080;
-		// System.out.println(wallpaperName);
+		String wallpaperName = str[2];
+		//System.out.println(wallpaperName);
 
 		// 检查下载路径
-		Utils.judeDirExists(path);
+		judeDirExists(path);
 
 		// "https://cn.bing.com/az/hprichbg/rb/DivingEmperors_ZH-CN8118506169_1920x1080.jpg";
 		downloadPicture(urlString, wallpaperName);
@@ -66,11 +59,10 @@ public class Bing {
 	 * @return String[] { URL, fileNameCN, fileNameEN }
 	 * @throws Exception
 	 */
-	private static String getURL() throws Exception {
+	private static String[] getURL() throws Exception {
 
-		// https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1
-		String getURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=1";
-
+		//String getURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=1&mkt=zh-CN";
+		String getURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1";
 		// 初始化链接
 		URL getUrl = new URL(getURL);
 		HttpURLConnection connection = (HttpURLConnection) getUrl.openConnection();
@@ -86,11 +78,27 @@ public class Bing {
 
 		System.out.println(json);
 
-		Object object = JSON.parseObject(json).get("images");
-		System.out.println("echo:getURL RETURN" + object);
-		// JSON.parseArray(object);
+		// 获取json中url和urlbase两个key值的位置
+		int indexStart = json.indexOf("url");
+		int indexEnd = json.indexOf("urlbase");
 
-		return object.toString();
+		// 获取部分下载链接
+		String URL = json.substring(indexStart + 6, indexEnd - 3);
+		// 拼接真正的下载地址
+		URL = "https://cn.bing.com" + URL;
+
+		// 2019年4月3日API接口变更，URL变更，改从描述中获取文件名copyright键值中@之前的内容，注意文件名有斜杠和反斜杠会GG
+		indexStart = json.indexOf("copyright");
+		indexEnd = json.indexOf("copyrightlink");
+		String fileNameCN = json.substring(indexStart + 12, indexEnd - 3).replaceAll("\\/", "-") + ".jpg";
+
+		// 或者直接截取"url"中id=OHR.后的内容，并且不用担心空格、斜杠、反斜杠和乱码的干扰。我选择前者的原因是因为包含了作者信息
+		indexStart = json.indexOf("id=");
+		indexEnd = json.indexOf("rf=");
+		String fileNameEN = json.substring(indexStart + 7, indexEnd - 1);
+		String arr[] = { URL, fileNameCN, fileNameEN };
+
+		return arr;
 	}
 
 	/**
@@ -125,6 +133,20 @@ public class Bing {
 		dataInputStream.close();
 		fileOutputStream.close();
 
+	}
+
+	public static void judeDirExists(String file) {
+
+		File filePath = new File(file);
+
+		if (filePath.exists()) {
+			if (filePath.isDirectory()) {
+				System.out.println("下载路径正确！");
+			}
+		} else {
+			System.out.println("下载路径不存在，将自动创建！");
+			filePath.mkdir();
+		}
 	}
 
 }
