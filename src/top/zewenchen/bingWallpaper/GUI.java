@@ -12,7 +12,6 @@ import javax.swing.JFileChooser;
 
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.net.URL;
 import java.awt.event.ActionEvent;
 import java.awt.Font;
 import java.awt.Image;
@@ -163,6 +162,8 @@ public class GUI {
 			public void actionPerformed(ActionEvent e) {
 				Bing.path = text_path.getText();
 				// TODO 这里要做一下路径校验
+				
+				Utils.judeDirExists(Bing.path);
 				System.out.println("下载路径已修改为 " + Bing.path);
 			}
 		});
@@ -170,13 +171,13 @@ public class GUI {
 		frmBingWallpaper.getContentPane().add(btn_download);
 
 		// 预览图片
-		String urlStr = "https://cn.bing.com/th?id=OHR.BardenasDesert_ZH-CN1357611840_1920x1080.jpg";
+		//String urlStr = "https://cn.bing.com/th?id=OHR.BardenasDesert_ZH-CN1357611840_1920x1080.jpg";
 
 		// 获取图像
 		try {
-			URL url = new URL(urlStr);
+			//URL url = new URL(urlStr);
 			Toolkit toolKit = frmBingWallpaper.getToolkit();
-			Image image = toolKit.getImage(url);
+			Image image = toolKit.getImage(Bing.url);
 			ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 			JLabel pic = new JLabel(icon);
 			pic.setBounds(8, 8, 960, 540);
