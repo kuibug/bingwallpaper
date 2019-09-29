@@ -1,4 +1,30 @@
+#eclipse default
 /bin/
 /Bingwallpaper/
-/jgoodies-common-1.8.0.jar
-/jgoodies-forms-1.8.0.jar
+/org/
+/lib/org.eclipse.swt.win32.win32.x86_64_3.106.3.v20180329-0507.jar
+jgoodies-common-1.8.0.jar
+jgoodies-forms-1.8.0.jar
+
+# Compiled class file
+*.class
+
+# Log file
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package Files #
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
