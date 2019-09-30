@@ -79,10 +79,17 @@ public class BingCore {
 		URL requestUrl = null;
 
 		try {
-
+			//setProperty转移至失败等会改用httpClient 试试
+			String Chrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
+			//System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");  
+			System.setProperty("http.agent", Chrome);
 			// 初始化链接
 			requestUrl = new URL(requestURL);
 			HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
+			//connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
+			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
+			//connection.setRequestProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
+			//user-agent 
 			connection.connect();
 
 			// 使用BufferedReader获取url的json数据
@@ -98,7 +105,7 @@ public class BingCore {
 		}
 
 		Object object = JSON.parseObject(json).get("images");
-		// System.out.println("echo:getURL RETURN" + object);
+		System.out.println("echo:getURL RETURN" + object);
 		picInfo = JSON.parseArray(object.toString()).getJSONObject(0);
 
 		return JSON.parseArray(object.toString()).getJSONObject(0);
