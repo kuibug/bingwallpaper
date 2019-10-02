@@ -44,7 +44,6 @@ public class GUI {
 				try {
 					GUI window = new GUI();
 					window.frmBingWallpaper.setVisible(true);
-
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
