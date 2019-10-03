@@ -71,6 +71,7 @@ public class GUI {
 		frmBingWallpaper.getContentPane().setBackground(new Color(255, 255, 255));
 		frmBingWallpaper.setBackground(new Color(255, 255, 255));
 		//frmBingWallpaper.setBounds(50, 50,745, 600 );
+		
 		frmBingWallpaper.setSize(745, 600);
 		frmBingWallpaper.setLocationRelativeTo(null);
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -142,7 +143,7 @@ public class GUI {
 			frmBingWallpaper.getContentPane().add(pic);
 
 			JLabel pic_info = new JLabel("图片信息;版权");
-			pic_info.setFont(new Font("宋体", Font.PLAIN, 14));
+			pic_info.setFont(new Font("宋体", Font.PLAIN, 12));
 			pic_info.setHorizontalAlignment(SwingConstants.CENTER);
 			pic_info.setBounds(18, 422, 710, 21);
 			pic_info.setText(wallpaper.getCopyright());
