@@ -12,6 +12,8 @@ public class Bing {
 	static String name;// 使用
 	static String mkt;// 区域
 	static String pixel;// 区域
+	static int day;// 发布日期
+	static int n = 1;// 批量获取
 
 	public static void initial() {
 		// 初始化的时候将文件中的变量读取进来
@@ -56,7 +58,8 @@ public class Bing {
 
 	// 这里可以临时传参而不影响全局配置
 	static Wallpaper getWallpaper(int day, String mkt, String pixel, String name) {
-		JSONObject info = BingCore.getInfo(day);
+
+		JSONObject info = BingCore.getInfo(day)[0];
 		String fileName = null;
 		if (name.toLowerCase().equals("link")) {
 			fileName = info.getString("urlbase").substring(11);
@@ -66,11 +69,100 @@ public class Bing {
 		return new Wallpaper(mkt, path, pixel, info.getString("urlbase"), fileName, info.getString("copyright"));
 	}
 
+	/**
+	 * 批量获取的方法
+	 * @return Wallpaper[]
+	 */
+	static Wallpaper[] getWallpapers() {
+		Wallpaper[] wallpapers = new Wallpaper[n];
+		JSONObject[] info = BingCore.getInfo(day);
+		for (int i = 0; i < n; i++) {
+			String fileName = null;
+			if (name.toLowerCase().equals("link")) {
+				fileName = info[i].getString("urlbase").substring(11);
+			} else {
+				fileName = info[i].getString("startdate");
+			}
+			wallpapers[i] = new Wallpaper(mkt, path, pixel, info[i].getString("urlbase"), fileName,
+					info[i].getString("copyright"));
+		}
+		return wallpapers;
+	}
+
 	public static void main(String[] args) {
 		initial();
+		// 处理传参
+		hasArgs(args);
+
+		// 批量获取（为了不重构，我算是心机用尽了……）
+		if (n > 1) {
+			Wallpaper[] wallpapers = getWallpapers();
+			for (Wallpaper wallpaper : wallpapers) {
+				System.out.println("还剩" + n + "张未下载");
+				BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+				n--;
+			}
+			System.out.println("批量获取，下载完成！");
+			// 批量获取完毕直接return结束程序
+			return;
+		}
+
 		Wallpaper wallpaper = getWallpaper();
 		BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
 		System.out.println("下载结束，保存配置中");
 		saveConfig();
+
+	}
+
+	/**
+	 * 处理传参，普通参数直接修改无返回，错误参数会被丢弃 -n参数返回其状态
+	 * 
+	 * @param args
+	 * @return 是否批量获取
+	 */
+	private static void hasArgs(String[] args) {
+		int len = args.length;
+		int index = 0;
+
+		while (index < len) {
+			System.out.println();
+
+			switch (args[index]) {
+			case "-day":
+				day = Integer.parseInt(args[index + 1]);
+				index += 2;
+				break;
+
+			case "-path":
+				path = args[index + 1];
+				index += 2;
+				break;
+
+			case "-pixle":
+				path = args[index + 1];
+				index += 2;
+				break;
+
+			case "-name":
+				name = args[index + 1];
+				index += 2;
+				break;
+
+			case "-mkt":
+				mkt = args[index + 1];
+				index += 2;
+				break;
+
+			case "-n":
+				n = Integer.parseInt(args[index + 1]);
+				index += 2;
+				break;
+
+			default:
+				System.out.println("未知的参数,自动忽略该参数");
+				index += 2;
+				break;
+			}
+		}
 	}
 }

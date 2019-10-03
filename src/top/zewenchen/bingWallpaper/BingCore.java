@@ -54,7 +54,12 @@ public class BingCore {
 	 * 
 	 * @return JSONObject
 	 */
-	static JSONObject getInfo(int day) {
+	static JSONObject[] getInfo(int day) {
+		JSONObject[] picInfoArr = new JSONObject[Bing.n]; 
+		final String Edge = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362";
+		final String cookie = "SNRHOP=I=&TS=; _EDGE_S=SID=37A0D840D53463520389D5AAD41A6263; _SS=SID=37A0D840D53463520389D5AAD41A6263&CPID=1570092787819&AC=0&CPH=b3758638; SRCHUID=V=2&GUID=478FFB1855B64DEBB96E9855710ED281&dmnchg=1; SRCHD=AF=S00028; _EDGE_V=1; MUID=115A7D8A71266EEB37FB705770086FA8; SRCHUSR=DOB=20190920&T=1569222069000; ENSEARCH=BENVER=1; SRCHHPGUSR=CW=1366&CH=665&DPR=1&UTC=480&WTS=63704818869; MUIDB=115A7D8A71266EEB37FB705770086FA8";
+
+		boolean setCookie = false;
 		// 行对参数进行判断是否合法,非法则返回上一次的值,默认开启会注入一个默认值,所以不会空
 		if (day < -1 || day > 7) {
 			isSides = true;
@@ -68,28 +73,30 @@ public class BingCore {
 		// 国际版临时支持
 		if (Bing.mkt.toLowerCase().equals("us")) {
 			MKT = "en-US";
+			setCookie = true;
 		}
 
 		// en-US
 		// zh-CN
 		// https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN
 		// idx:天数； n ：数量； mkt ：区域
-		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=1&mkt=" + MKT;
+		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=" + Bing.n + "&mkt="
+				+ MKT;
 		String json = null;
 		URL requestUrl = null;
 
 		try {
-			//setProperty转移至失败等会改用httpClient 试试
-			String Chrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36";
-			//System.setProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");  
-			System.setProperty("http.agent", Chrome);
 			// 初始化链接
 			requestUrl = new URL(requestURL);
+			System.out.println(requestUrl);
 			HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
-			//connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.90 Safari/537.36");
-			connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
-			//connection.setRequestProperty("http.agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
-			//user-agent 
+			
+			//经过测试,访问国际版需要同时设置UA标识和cookie，不知道这个cookie可以撑多久
+			//国内版不能加cookie否则会造成连接超时
+			if(setCookie) {
+				connection.setRequestProperty("User-Agent", Edge);
+				connection.setRequestProperty("Cookie", cookie);
+			}
 			connection.connect();
 
 			// 使用BufferedReader获取url的json数据
@@ -101,14 +108,17 @@ public class BingCore {
 			connection.disconnect();
 
 		} catch (Exception e) {
+			e.printStackTrace();
 			System.err.println("获取地址出现错误" + e);
 		}
 
 		Object object = JSON.parseObject(json).get("images");
-		System.out.println("echo:getURL RETURN" + object);
-		picInfo = JSON.parseArray(object.toString()).getJSONObject(0);
-
-		return JSON.parseArray(object.toString()).getJSONObject(0);
+		//System.out.println("echo:getURL RETURN" + object);
+		
+		for(int i = 0;i<Bing.n;i++) {
+			picInfoArr[i] = JSON.parseArray(object.toString()).getJSONObject(i);
+		}
+		return picInfoArr;
 	}
 
 	/**
