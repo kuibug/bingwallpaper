@@ -1,0 +1,1 @@
+start ..\jre\bin\java.exe -jar ..\BingwallpaperV0.2.3.jar
