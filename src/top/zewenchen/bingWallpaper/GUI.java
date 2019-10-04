@@ -103,7 +103,7 @@ public class GUI {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				try {
-					File file = new File("./AutoDownload.bat");
+					File file = new File("./registeredAutoDownload.bat");
 					Process process = Runtime.getRuntime().exec("cmd /c start" + file);
 					System.out.println(process);
 				} catch (IOException e1) {
