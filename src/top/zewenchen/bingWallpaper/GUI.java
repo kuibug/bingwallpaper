@@ -90,7 +90,7 @@ public class GUI {
 
 		// 菜单栏
 		JMenuBar menuBar = new JMenuBar();
-		menuBar.setFont(new Font("幼圆", Font.PLAIN, 12));
+		menuBar.setFont(new Font("宋体", Font.PLAIN, 12));
 		frmBingWallpaper.setJMenuBar(menuBar);
 
 		JMenu menu_2 = new JMenu("设置");
@@ -107,7 +107,6 @@ public class GUI {
 					Process process = Runtime.getRuntime().exec("cmd /c start" + file);
 					System.out.println(process);
 				} catch (IOException e1) {
-					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 			}
@@ -264,9 +263,6 @@ public class GUI {
 		});
 		btn_download.setBounds(8, 512, 720, 38);
 		frmBingWallpaper.getContentPane().add(btn_download);
-
-		// TODO 下一个版本加入上一天和下一天
-
 	}
 
 	/**

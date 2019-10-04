@@ -1,1 +1,0 @@
-start jre/bin/java -jar  -Dfile.encoding=utf-8 wallpaper.jar

@@ -14,6 +14,7 @@ public class Bing {
 	static String pixel;// 区域
 	static int day;// 发布日期
 	static int n = 1;// 批量获取
+	static String cookie;// cookie
 
 	public static void initial() {
 		// 初始化的时候将文件中的变量读取进来
@@ -22,8 +23,9 @@ public class Bing {
 		path = object.getString("path");
 		name = object.getString("name");
 		pixel = object.getString("pixel");
-		System.out
-				.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量：" + pixel);
+		cookie = object.getString("cookie");
+		System.out.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量：" + pixel
+				+ "；\n\tcookie：" + cookie);
 	}
 
 	/**
@@ -41,6 +43,8 @@ public class Bing {
 		buffer.append(name);
 		buffer.append("\",\n\"pixel\": \"");
 		buffer.append(pixel);
+		buffer.append("\",\n\"cookie\": \"");
+		buffer.append(cookie);
 		buffer.append("\"\n}");
 
 		String str = buffer.toString();
@@ -71,6 +75,7 @@ public class Bing {
 
 	/**
 	 * 批量获取的方法
+	 * 
 	 * @return Wallpaper[]
 	 */
 	static Wallpaper[] getWallpapers() {
