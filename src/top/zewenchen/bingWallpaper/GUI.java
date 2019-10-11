@@ -279,7 +279,7 @@ public class GUI {
 					System.out.println("按下了pgup,正在尝试切换到上一天的壁纸");
 					if (dayU < 7) {
 						dayU++;
-						changePic(dayU);
+						new Thread(() -> {changePic(dayU);}).start();
 					} else {
 						System.out.println("切换失败，超出最大范围“7”");
 					}
@@ -290,7 +290,7 @@ public class GUI {
 					System.out.println("按下了pgdown，正在尝试切换到下一天的壁纸");
 					if (dayU > -1) {
 						dayU--;
-						changePic(dayU);
+						new Thread(() -> {changePic(dayU);}).start();
 					} else {
 						System.out.println("切换失败，超出范围“-1”");
 					}
