@@ -3,6 +3,8 @@ package top.zewenchen.bingWallpaper;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import top.zewenchen.util.Utils;
+
 public class Bing {
 	final static String BING_SITE = "https://cn.bing.com";
 	final static String PIXEL_1080 = "_1920x1080.jpg";

@@ -1,5 +1,9 @@
 package top.zewenchen.bingWallpaper;
 
+import top.zewenchen.util.ConsoleTextArea;
+import top.zewenchen.util.ScaleIcon;
+import top.zewenchen.util.Utils;
+
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.KeyEventPostProcessor;
@@ -27,6 +31,7 @@ import javax.swing.JTextField;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
@@ -38,10 +43,12 @@ public class GUI {
 	private JFrame frmBingWallpaper;
 	private JTextField text_path;
 	private int dayU = 0;
-	Wallpaper wallpaper;
-	Toolkit toolKit;
-	JLabel pic = null;
-	JTextArea pic_info;
+	static Wallpaper wallpaper;
+	static Toolkit toolKit;
+	static JLabel pic = null;
+	static JTextArea pic_info;
+	ConsoleTextArea log = null;
+	static JButton btn_download;
 
 	/**
 	 * Launch the application.
@@ -57,13 +64,18 @@ public class GUI {
 				}
 			}
 		});
+
+		// 新建一个线程区优化加载速度
+		new Thread(() -> {
+			Bing.initial();
+			changePic(0);
+		}).start();
 	}
 
 	/**
 	 * Create the application.
 	 */
 	public GUI() {
-		Bing.initial();
 		initialize();
 	}
 
@@ -80,7 +92,7 @@ public class GUI {
 		frmBingWallpaper.setBackground(new Color(255, 255, 255));
 		// frmBingWallpaper.setBounds(50, 50,745, 600 );
 
-		frmBingWallpaper.setSize(744, 610);
+		frmBingWallpaper.setSize(744, 650);
 		frmBingWallpaper.setLocationRelativeTo(null);
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -158,17 +170,12 @@ public class GUI {
 		frmBingWallpaper.getContentPane().setLayout(null);
 
 		// 预览图片
-		// String urlStr =
-		// "https://cn.bing.com/th?id=OHR.BardenasDesert_ZH-CN1357611840_1920x1080.jpg";
-		wallpaper = Bing.getWallpaper();
 		toolKit = frmBingWallpaper.getToolkit();
 		// 获取图像
 		try {
-			// URL url = new URL(urlStr);// test
-			// Image image = toolKit.getImage(url);// test
-			Image image = toolKit.getImage(wallpaper.getUrl());// run
-			ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
-			pic = new JLabel(icon);
+			pic = new JLabel("loading……");
+			pic.setHorizontalAlignment(JLabel.CENTER);
+			pic.setFont(new Font("Monospaced", Font.BOLD, 28));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -181,22 +188,22 @@ public class GUI {
 		pic_info.setLineWrap(true); // 激活自动换行功能
 		pic_info.setWrapStyleWord(true); // 激活断行不断字功能
 		pic_info.setFont(new Font("宋体", Font.PLAIN, 12));
-		pic_info.setBounds(18, 422, 710, 30);
-		pic_info.append(wallpaper.getCopyright());
+		pic_info.setBounds(18, 422, 710, 21);
+		pic_info.append("图片信息，请认真看待版权问题！");
 		pic_info.setEditable(false);
-		System.out.println(wallpaper.getCopyright());
+		// System.out.println(wallpaper.getCopyright());
 		frmBingWallpaper.getContentPane().add(pic_info);
 
 		// 分隔线
 		JSeparator separator = new JSeparator();
 		separator.setForeground(Color.GRAY);
-		separator.setBounds(8, 462, 720, 8);
+		separator.setBounds(8, 453, 720, 8);
 		frmBingWallpaper.getContentPane().add(separator);
 
 		// 图片下方的
 		JLabel lblNewLabel = new JLabel("壁纸路径");
 		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 14));
-		lblNewLabel.setBounds(8, 480, 71, 21);
+		lblNewLabel.setBounds(8, 464, 71, 21);
 		frmBingWallpaper.getContentPane().add(lblNewLabel);
 
 		// 路径
@@ -218,7 +225,7 @@ public class GUI {
 			}
 		});
 
-		text_path.setBounds(81, 480, 544, 21);
+		text_path.setBounds(81, 464, 436, 21);
 		frmBingWallpaper.getContentPane().add(text_path);
 		text_path.setColumns(10);
 
@@ -247,11 +254,11 @@ public class GUI {
 				}
 			}
 		});
-		btn_chosesPath.setBounds(635, 479, 93, 23);
+		btn_chosesPath.setBounds(532, 463, 93, 23);
 		frmBingWallpaper.getContentPane().add(btn_chosesPath);
 
 		// 巨大的下载按钮
-		JButton btn_download = new JButton("开始下载");
+		btn_download = new JButton("开始下载");
 		btn_download.setBackground(SystemColor.controlHighlight);
 		btn_download.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -261,8 +268,26 @@ public class GUI {
 				btn_download.setText("下载完成！");
 			}
 		});
-		btn_download.setBounds(8, 512, 720, 38);
+		btn_download.setBounds(635, 463, 95, 23);
+		btn_download.setEnabled(false);
 		frmBingWallpaper.getContentPane().add(btn_download);
+
+		// 实时日志
+		try {
+			log = new ConsoleTextArea();
+			log.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		} catch (IOException e) {
+			System.err.println("不能创建LoopedStreams：" + e);
+			System.exit(1);
+		}
+		JScrollPane scroll = new JScrollPane(log);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		log.setBounds(8, 511, 720, 39);
+		scroll.setBounds(8, 495, 720, 95);
+		scroll.setViewportView(log);
+		frmBingWallpaper.getContentPane().add(scroll);
 	}
 
 	/**
@@ -276,23 +301,29 @@ public class GUI {
 
 				// PAGE_UP
 				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-					System.out.println("按下了pgup,正在尝试切换到上一天的壁纸");
+					System.out.println("正在尝试切换到上一天的壁纸");
+
 					if (dayU < 7) {
 						dayU++;
-						new Thread(() -> {changePic(dayU);}).start();
+						new Thread(() -> {
+							changePic(dayU);
+						}).start();
 					} else {
-						System.out.println("切换失败，超出最大范围“7”");
+						System.out.println("已经到尽头了，再怎么翻也没有啦~(￣▽￣)~*");
 					}
 
 				}
 				// PAGE_DOWN
 				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-					System.out.println("按下了pgdown，正在尝试切换到下一天的壁纸");
-					if (dayU > -1) {
+					System.out.println("正在尝试切换到下一天的壁纸");
+
+					if (dayU > 0) {
 						dayU--;
-						new Thread(() -> {changePic(dayU);}).start();
+						new Thread(() -> {
+							changePic(dayU);
+						}).start();
 					} else {
-						System.out.println("切换失败，超出范围“-1”");
+						System.out.println("已经是最新的啦！\\(0^◇^0)/");
 					}
 
 				}
@@ -307,13 +338,19 @@ public class GUI {
 	 * 
 	 * @param i
 	 */
-	void changePic(int i) {
-		Wallpaper newWallpaper = Bing.getWallpaper(i);
-		Image image = toolKit.getImage(newWallpaper.getUrl());// run
+	static void changePic(int i) {
+		try {
+			wallpaper = Bing.getWallpaper(i);
+		} catch (Exception e) {
+			pic.setText("壁纸获取失败，请检查网络！");
+		}
+		Image image = toolKit.getImage(wallpaper.getUrl());
 		ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 		// 刷新预览图
 		pic.setIcon(icon);
 		// 刷新信息
-		pic_info.setText(newWallpaper.getCopyright());
+		pic_info.setText(wallpaper.getCopyright());
+		btn_download.setEnabled(true);
+		System.out.println("壁纸加载成功！当前日期代码" + i);
 	}
 }
