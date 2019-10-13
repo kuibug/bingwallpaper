@@ -33,9 +33,6 @@ public class BingCore {
 	// 下载图片的信息是一个jsonArray，0是下载图片的相关信息，1上有使用范围
 	static JSONObject picInfo;
 
-	// 判断是否到达边界,是的话就不用再次获取信息了
-	static boolean isSides = false;
-
 	static int Pixel = 1080;
 
 	static URL getURL(String pixle) {
@@ -56,19 +53,14 @@ public class BingCore {
 	 * 
 	 * @return JSONObject
 	 */
-	static JSONObject[] getInfo(int day) {
-		JSONObject[] picInfoArr = new JSONObject[Bing.n]; 
+	static JSONObject[] getInfo(int day,int n) {
+		JSONObject[] picInfoArr = new JSONObject[n]; 
 
 		boolean setCookie = false;
 		// 行对参数进行判断是否合法,非法则返回上一次的值,默认开启会注入一个默认值,所以不会空
 		if (day < -1 || day > 7) {
-			isSides = true;
 			System.out.println("参数超出范围（-1~7），为您显示最相近的一条");
-			// return picInfo;
 		}
-
-		// 对上一次标记清除
-		isSides = false;
 
 		// 国际版临时支持
 		if (Bing.mkt.toLowerCase().equals("us")) {
@@ -80,7 +72,7 @@ public class BingCore {
 		// zh-CN
 		// https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN
 		// idx:天数； n ：数量； mkt ：区域
-		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=" + Bing.n + "&mkt="
+		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=" + n + "&mkt="
 				+ MKT;
 		String json = null;
 		URL requestUrl = null;
@@ -88,11 +80,10 @@ public class BingCore {
 		try {
 			// 初始化链接
 			requestUrl = new URL(requestURL);
-			System.out.println(requestUrl);
+			//System.out.println(requestUrl);
 			HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
 			
-			//经过测试,访问国际版需要同时设置UA标识和cookie，不知道这个cookie可以撑多久
-			//国内版不能加cookie否则会造成连接超时
+			//国内版不能加国际版cookie否则会造成错误
 			if(setCookie) {
 				//connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
 				connection.setRequestProperty("Cookie", Bing.cookie);
@@ -108,14 +99,14 @@ public class BingCore {
 			connection.disconnect();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			System.err.println("获取地址出现错误" + e);
+			e.printStackTrace();
 		}
 
 		Object object = JSON.parseObject(json).get("images");
 		//System.out.println("echo:getURL RETURN" + object);
 		
-		for(int i = 0;i<Bing.n;i++) {
+		for(int i = 0;i<n;i++) {
 			picInfoArr[i] = JSON.parseArray(object.toString()).getJSONObject(i);
 		}
 		return picInfoArr;

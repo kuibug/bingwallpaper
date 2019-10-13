@@ -10,24 +10,28 @@ public class Bing {
 	final static String PIXEL_1080 = "_1920x1080.jpg";
 	final static String PIXEL_720 = "_1366x768.jpg";
 
-	static String path;// 图片地址
-	static String name;// 使用
-	static String mkt;// 区域
-	static String pixel;// 区域
-	static int day;// 发布日期
+	static String path = "./BingWallpaper";// 图片地址
+	static String name = "link";// 使用
+	static String mkt = "cn";// 区域
+	static String pixel = "720";// 区域
 	static int n = 1;// 批量获取
 	static String cookie;// cookie
+	static int day = 0;// 发布日期
 
 	public static void initial() {
-		// 初始化的时候将文件中的变量读取进来
-		JSONObject object = JSON.parseObject(Utils.readFileContent("config.json"));
-		mkt = object.getString("mkt");
-		path = object.getString("path");
-		name = object.getString("name");
-		pixel = object.getString("pixel");
-		cookie = object.getString("cookie");
-		System.out.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量：" + pixel
-				+ "；\n\tcookie：" + cookie);
+		try {
+			// 初始化的时候将文件中的变量读取进来
+			JSONObject object = JSON.parseObject(Utils.readFileContent("config.json"));
+			mkt = object.getString("mkt");
+			path = object.getString("path");
+			name = object.getString("name");
+			pixel = object.getString("pixel");
+			cookie = object.getString("cookie");
+			System.out.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量："
+					+ pixel + "；\n\tcookie：" + cookie);
+		} catch (Exception e) {
+			System.out.println("config.json文件不存在或配置错误，将使用默认配置");
+		}
 	}
 
 	/**
@@ -54,18 +58,15 @@ public class Bing {
 		Utils.writeFile(str, "config.json");
 	}
 
+	// 默认偷懒
 	static Wallpaper getWallpaper() {
 		return getWallpaper(0);
 	}
 
+	// 偷懒获取
 	static Wallpaper getWallpaper(int day) {
-		return getWallpaper(day, mkt, pixel, name);
-	}
 
-	// 这里可以临时传参而不影响全局配置
-	static Wallpaper getWallpaper(int day, String mkt, String pixel, String name) {
-
-		JSONObject info = BingCore.getInfo(day)[0];
+		JSONObject info = BingCore.getInfo(day, 1)[0];
 		String fileName = null;
 		if (name.toLowerCase().equals("link")) {
 			fileName = info.getString("urlbase").substring(11);
@@ -76,13 +77,15 @@ public class Bing {
 	}
 
 	/**
-	 * 批量获取的方法
+	 * 批量获取
 	 * 
 	 * @return Wallpaper[]
 	 */
-	static Wallpaper[] getWallpapers() {
+	static Wallpaper[] getWallpapers(int day, int n) {
+		System.out.println("总共"+n+"张壁纸，正在获取下载链接，请稍等！");
 		Wallpaper[] wallpapers = new Wallpaper[n];
-		JSONObject[] info = BingCore.getInfo(day);
+		// 获取信息
+		JSONObject[] info = BingCore.getInfo(day, n);
 		for (int i = 0; i < n; i++) {
 			String fileName = null;
 			if (name.toLowerCase().equals("link")) {
@@ -93,32 +96,15 @@ public class Bing {
 			wallpapers[i] = new Wallpaper(mkt, path, pixel, info[i].getString("urlbase"), fileName,
 					info[i].getString("copyright"));
 		}
-		return wallpapers;
-	}
 
-	public static void main(String[] args) {
-		initial();
-		// 处理传参
-		hasArgs(args);
-
-		// 批量获取（为了不重构，我算是心机用尽了……）
-		if (n > 1) {
-			Wallpaper[] wallpapers = getWallpapers();
-			for (Wallpaper wallpaper : wallpapers) {
-				System.out.println("还剩" + n + "张未下载");
-				BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
-				n--;
-			}
-			System.out.println("批量获取，下载完成！");
-			// 批量获取完毕直接return结束程序
-			return;
+		// 开始下载
+		for (Wallpaper wallpaper : wallpapers) {
+			System.out.println("还剩" + n + "张未下载");
+			BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+			n--;
 		}
-
-		Wallpaper wallpaper = getWallpaper();
-		BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
-		System.out.println("下载结束，保存配置中");
-		saveConfig();
-
+		System.out.println("批量获取，下载完成！");
+		return wallpapers;
 	}
 
 	/**
@@ -128,6 +114,7 @@ public class Bing {
 	 * @return 是否批量获取
 	 */
 	private static void hasArgs(String[] args) {
+
 		int len = args.length;
 		int index = 0;
 
@@ -162,6 +149,7 @@ public class Bing {
 
 			case "-n":
 				n = Integer.parseInt(args[index + 1]);
+				System.out.println("读取到参数n=" + n);
 				index += 2;
 				break;
 
@@ -171,5 +159,22 @@ public class Bing {
 				break;
 			}
 		}
+	}
+
+	public static void main(String[] args) {
+		initial();
+		// 处理传参
+		hasArgs(args);
+		
+		// 批量获取（为了不重构，我算是心机用尽了……）
+		if (n > 1) {
+			getWallpapers(day, n);
+			return;
+		}
+
+		Wallpaper wallpaper = getWallpaper();
+		BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+		System.out.println("下载结束，保存配置中");
+		saveConfig();
 	}
 }
