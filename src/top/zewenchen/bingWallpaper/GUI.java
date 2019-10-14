@@ -42,7 +42,7 @@ import java.io.IOException;
 public class GUI {
 
 	private JFrame frmBingWallpaper;
-	private JTextField text_path;	//下载路径
+	private JTextField text_path; // 下载路径
 	private ConsoleTextArea log; // 日志预览
 	private int dayU = 0; // 日期标记
 
@@ -51,6 +51,9 @@ public class GUI {
 	static JLabel pic; // 图片显示区域
 	static JTextArea pic_info; // 图片版权等信息显示区域
 	static JButton btn_download;// 下载按钮
+
+	static int UP_KEY = KeyEvent.VK_F7;
+	static int DOWD_KEY = KeyEvent.VK_F8;
 
 	/**
 	 * Launch the application.
@@ -61,7 +64,7 @@ public class GUI {
 				try {
 					GUI window = new GUI();
 					window.frmBingWallpaper.setVisible(true);
-					System.out.println("Notice：PageUp切换上一天壁纸，PageDown切换下一天壁纸！");
+					System.out.println("Notice：默认以F7切换上一天壁纸，F8切换下一天壁纸！");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -157,7 +160,7 @@ public class GUI {
 		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menuBar.add(menu_1);
 
-		//About
+		// About
 		JMenuItem menuItem = new JMenuItem("关于下载器");
 		menuItem.addMouseListener(new MouseAdapter() {
 			@Override
@@ -169,8 +172,8 @@ public class GUI {
 		});
 		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_1.add(menuItem);
-		
-		//=================批量获取====================
+
+		// =================批量获取====================
 		JLabel lblNewLabel = new JLabel("  批量获取");
 		lblNewLabel.addMouseListener(new MouseAdapter() {
 			@Override
@@ -236,8 +239,8 @@ public class GUI {
 				System.out.println("试图修改路径");
 				// 失焦的时候将填写的路径保存
 				String text = text_path.getText();
-				
-				//手动输入地址‘/’自动补全
+
+				// 手动输入地址‘/’自动补全
 				if (!text.endsWith("/"))
 					text = text + "/";
 				Bing.path = text;
@@ -248,12 +251,12 @@ public class GUI {
 		text_path.setBounds(81, 464, 436, 21);
 		frmBingWallpaper.getContentPane().add(text_path);
 
-		//=====================路径选择按钮=============================
+		// =====================路径选择按钮=============================
 		JButton btn_chosesPath = new JButton("选择");
 		btn_chosesPath.setBackground(SystemColor.controlHighlight);
 		btn_chosesPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				
+
 				JFileChooser jfc = new JFileChooser();
 				FileSystemView fsv = FileSystemView.getFileSystemView();
 				jfc.setCurrentDirectory(fsv.getHomeDirectory());
@@ -298,7 +301,7 @@ public class GUI {
 			log.setFont(new Font("Monospaced", Font.PLAIN, 13));
 			log.setEditable(false);
 		} catch (IOException e) {
-			System.err.println("无法创建LoopedStreams：" + e);
+			System.err.println("err:无法创建LoopedStreams：" + e);
 			System.exit(1);
 		}
 		JScrollPane scroll = new JScrollPane(log);
@@ -311,7 +314,7 @@ public class GUI {
 		frmBingWallpaper.getContentPane().add(scroll);
 	}
 
-	//================================监听处理================================================
+	// ================================监听处理================================================
 	/**
 	 * 图片切换按键监听
 	 * 
@@ -321,34 +324,40 @@ public class GUI {
 		return new KeyEventPostProcessor() {
 			public boolean postProcessKeyEvent(KeyEvent e) {
 
-				// PAGE_UP
-				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-					System.out.println("正在尝试切换到上一天的壁纸");
+				//这里改成KEY_RELEASED，防止按下之后疯狂切换
+				if (e.getID() == KeyEvent.KEY_RELEASED) {
+					System.out.println(
+							"info：key = '" + KeyEvent.getKeyText(e.getKeyCode()) + "', keycode = " + e.getKeyCode());
+					// 上翻
+					if (e.getKeyCode() == UP_KEY) {
+						System.out.println("正在尝试切换到上一天的壁纸");
 
-					if (dayU < 7) {
-						dayU++;
-						new Thread(() -> {
-							changePic(dayU);
-						}).start();
-					} else {
-						System.out.println("已经到尽头了，再怎么翻也没有啦~(￣▽￣)~*");
+						if (dayU < 7) {
+							dayU++;
+							new Thread(() -> {
+								changePic(dayU);
+							}).start();
+						} else {
+							System.out.println("已经到尽头了，再怎么翻也没有啦~(￣▽￣)~*");
+						}
+
 					}
+					// 下翻
+					if (e.getKeyCode() == DOWD_KEY) {
+						System.out.println("正在尝试切换到下一天的壁纸");
 
-				}
-				// PAGE_DOWN
-				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-					System.out.println("正在尝试切换到下一天的壁纸");
+						if (dayU > 0) {
+							dayU--;
+							new Thread(() -> {
+								changePic(dayU);
+							}).start();
+						} else {
+							System.out.println("已经是最新的啦！\\(0^◇^0)/");
+						}
 
-					if (dayU > 0) {
-						dayU--;
-						new Thread(() -> {
-							changePic(dayU);
-						}).start();
-					} else {
-						System.out.println("已经是最新的啦！\\(0^◇^0)/");
 					}
-
 				}
+
 				return true;
 			}
 

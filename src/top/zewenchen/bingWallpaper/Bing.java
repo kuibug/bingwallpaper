@@ -22,13 +22,22 @@ public class Bing {
 		try {
 			// 初始化的时候将文件中的变量读取进来
 			JSONObject object = JSON.parseObject(Utils.readFileContent("config.json"));
-			mkt = object.getString("mkt");
-			path = object.getString("path");
-			name = object.getString("name");
-			pixel = object.getString("pixel");
-			cookie = object.getString("cookie");
+			if (object.getString("mkt") != null)
+				mkt = object.getString("mkt");
+			if (object.getString("path") != null)
+				path = object.getString("path");
+			if (object.getString("name") != null)
+				name = object.getString("name");
+			if (object.getString("pixel") != null)
+				pixel = object.getString("pixel");
+			if (object.getString("cookie") != null)
+				cookie = object.getString("cookie");
+			if (object.getString("up_key") != null)
+				GUI.UP_KEY = object.getInteger("up_key");
+			if (object.getString("down_key") != null)
+				GUI.DOWD_KEY = object.getInteger("down_key");
 			System.out.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量："
-					+ pixel + "；\n\tcookie：" + cookie);
+					+ pixel + "；\n\tcookie：" + cookie + "；\n\tup_key：" + GUI.UP_KEY + "；\n\tdown_key：" + GUI.DOWD_KEY);
 		} catch (Exception e) {
 			System.out.println("config.json文件不存在或配置错误，将使用默认配置");
 		}
@@ -51,6 +60,10 @@ public class Bing {
 		buffer.append(pixel);
 		buffer.append("\",\n\"cookie\": \"");
 		buffer.append(cookie);
+		buffer.append("\",\n\"up_key\": \"");
+		buffer.append(GUI.UP_KEY);
+		buffer.append("\",\n\"down_key\": \"");
+		buffer.append(GUI.DOWD_KEY);
 		buffer.append("\"\n}");
 
 		String str = buffer.toString();
@@ -82,8 +95,8 @@ public class Bing {
 	 * @return Wallpaper[]
 	 */
 	static Wallpaper[] getWallpapers(int day, int n) {
-		System.out.println(day+n);
-		System.out.println("总共"+n+"张壁纸，正在获取下载链接，请稍等！");
+		System.out.println(day + n);
+		System.out.println("总共" + n + "张壁纸，正在获取下载链接，请稍等！");
 		Wallpaper[] wallpapers = new Wallpaper[n];
 		// 获取信息
 		JSONObject[] info = BingCore.getInfo(day, n);
@@ -118,13 +131,16 @@ public class Bing {
 
 		int len = args.length;
 		int index = 0;
+		int tmp;
 
 		while (index < len) {
 			System.out.println();
 
 			switch (args[index]) {
 			case "-day":
-				day = Integer.parseInt(args[index + 1]);
+				tmp = Integer.parseInt(args[index + 1]);
+				if (tmp > 0)
+					day = tmp;
 				break;
 
 			case "-path":
@@ -144,7 +160,9 @@ public class Bing {
 				break;
 
 			case "-n":
-				n = Integer.parseInt(args[index + 1]);
+				tmp = Integer.parseInt(args[index + 1]);
+				if (tmp > 1)
+					n = tmp;
 				break;
 
 			default:
@@ -156,14 +174,15 @@ public class Bing {
 	}
 
 	/**
-	 *从命令行启动的入口
+	 * 从命令行启动的入口
+	 * 
 	 * @param args
 	 */
 	public static void main(String[] args) {
 		initial();
 		// 处理传参
 		hasArgs(args);
-		
+
 		// 批量获取（为了不重构，我算是心机用尽了……）
 		if (n > 1) {
 			getWallpapers(day, n);

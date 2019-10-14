@@ -62,8 +62,8 @@ public class BingCore {
 		
 		boolean setCookie = false;
 		// 行对参数进行判断是否合法,非法则返回上一次的值,默认开启会注入一个默认值,所以不会空
-		if (day < -1 || day > 7) {
-			System.out.println("参数超出范围（-1~7），为您显示最相近的一条");
+		if (day < 0 || day > 7) {
+			System.out.println("参数超出范围（0~7），为您显示最相近的一条");
 		}
 
 		// 国际版临时支持
