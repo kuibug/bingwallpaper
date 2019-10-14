@@ -73,7 +73,7 @@ public class Bing {
 		} else {
 			fileName = info.getString("startdate");
 		}
-		return new Wallpaper(mkt, path, pixel, info.getString("urlbase"), fileName, info.getString("copyright"));
+		return new Wallpaper(mkt, path, pixel, info.getString("urlbase"), fileName, info.get("copyright").toString());
 	}
 
 	/**

@@ -4,6 +4,6 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="lib"/>
 	<classpathentry kind="lib" path="lib/org.eclipse.swt.win32.win32.x86_64_3.106.3.v20180329-0507.jar"/>
-	<classpathentry kind="lib" path="lib/fastjson-1.2.58.jar"/>
+	<classpathentry kind="lib" path="lib/fastjson-1.2.58.jar" sourcepath="C:/Users/craftsman/Downloads/fastjson-1.2.9-sources.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

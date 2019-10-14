@@ -80,18 +80,16 @@ public class BingCore {
 		try {
 			// 初始化链接
 			requestUrl = new URL(requestURL);
-			//System.out.println(requestUrl);
 			HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
 			
 			//国内版不能加国际版cookie否则会造成错误
 			if(setCookie) {
-				//connection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18362");
 				connection.setRequestProperty("Cookie", Bing.cookie);
 			}
 			connection.connect();
 
 			// 使用BufferedReader获取url的json数据
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
 			json = reader.readLine();
 
 			// 关闭资源
@@ -102,7 +100,8 @@ public class BingCore {
 			System.err.println("获取地址出现错误" + e);
 			e.printStackTrace();
 		}
-
+		
+		//使用fastjson进行序列化
 		Object object = JSON.parseObject(json).get("images");
 		//System.out.println("echo:getURL RETURN" + object);
 		

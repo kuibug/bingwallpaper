@@ -41,14 +41,15 @@ import java.io.IOException;
 public class GUI {
 
 	private JFrame frmBingWallpaper;
-	private JTextField text_path;
-	private int dayU = 0;
-	static Wallpaper wallpaper;
+	private JTextField text_path;	//下载路径
+	private ConsoleTextArea log; // 日志预览
+	private int dayU = 0; // 日期标记
+
+	static Wallpaper wallpaper; // 初始化一个公用对象
 	static Toolkit toolKit;
-	static JLabel pic = null;
-	static JTextArea pic_info;
-	ConsoleTextArea log = null;
-	static JButton btn_download;
+	static JLabel pic; // 图片显示按钮
+	static JTextArea pic_info; // 图片版权等信息
+	static JButton btn_download;// 下载按钮
 
 	/**
 	 * Launch the application.
@@ -187,7 +188,7 @@ public class GUI {
 		pic_info = new JTextArea(2, 40);
 		pic_info.setLineWrap(true); // 激活自动换行功能
 		pic_info.setWrapStyleWord(true); // 激活断行不断字功能
-		pic_info.setFont(new Font("宋体", Font.PLAIN, 12));
+		pic_info.setFont(new Font("Monospaced", Font.PLAIN, 13));
 		pic_info.setBounds(18, 422, 710, 21);
 		pic_info.append("图片信息，请认真看待版权问题！");
 		pic_info.setEditable(false);
@@ -257,7 +258,7 @@ public class GUI {
 		btn_chosesPath.setBounds(532, 463, 93, 23);
 		frmBingWallpaper.getContentPane().add(btn_chosesPath);
 
-		// 巨大的下载按钮
+		// 变小的下载按钮
 		btn_download = new JButton("开始下载");
 		btn_download.setBackground(SystemColor.controlHighlight);
 		btn_download.addActionListener(new ActionListener() {
@@ -269,6 +270,7 @@ public class GUI {
 			}
 		});
 		btn_download.setBounds(635, 463, 95, 23);
+		// 初始状态不可用，防止下载错误
 		btn_download.setEnabled(false);
 		frmBingWallpaper.getContentPane().add(btn_download);
 
@@ -276,6 +278,7 @@ public class GUI {
 		try {
 			log = new ConsoleTextArea();
 			log.setFont(new Font("Monospaced", Font.PLAIN, 13));
+			log.setEditable(false);
 		} catch (IOException e) {
 			System.err.println("不能创建LoopedStreams：" + e);
 			System.exit(1);
@@ -334,9 +337,9 @@ public class GUI {
 	}
 
 	/**
-	 * 刷新预览
+	 * 刷新
 	 * 
-	 * @param i
+	 * @param i day
 	 */
 	static void changePic(int i) {
 		try {
@@ -348,9 +351,12 @@ public class GUI {
 		ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 		// 刷新预览图
 		pic.setIcon(icon);
-		// 刷新信息
+		// 刷新版权信息
 		pic_info.setText(wallpaper.getCopyright());
+		// 刷新按钮状态
 		btn_download.setEnabled(true);
+		btn_download.setText("开始下载");
+
 		System.out.println("壁纸加载成功！当前日期代码" + i);
 	}
 }
