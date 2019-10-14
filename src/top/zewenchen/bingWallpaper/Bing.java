@@ -82,6 +82,7 @@ public class Bing {
 	 * @return Wallpaper[]
 	 */
 	static Wallpaper[] getWallpapers(int day, int n) {
+		System.out.println(day+n);
 		System.out.println("总共"+n+"张壁纸，正在获取下载链接，请稍等！");
 		Wallpaper[] wallpapers = new Wallpaper[n];
 		// 获取信息
@@ -108,7 +109,7 @@ public class Bing {
 	}
 
 	/**
-	 * 处理传参，普通参数直接修改无返回，错误参数会被丢弃 -n参数返回其状态
+	 * 处理传参，普通参数直接修改无返回，错误参数会被丢弃
 	 * 
 	 * @param args
 	 * @return 是否批量获取
@@ -124,43 +125,40 @@ public class Bing {
 			switch (args[index]) {
 			case "-day":
 				day = Integer.parseInt(args[index + 1]);
-				index += 2;
 				break;
 
 			case "-path":
 				path = args[index + 1];
-				index += 2;
 				break;
 
 			case "-pixle":
 				path = args[index + 1];
-				index += 2;
 				break;
 
 			case "-name":
 				name = args[index + 1];
-				index += 2;
 				break;
 
 			case "-mkt":
 				mkt = args[index + 1];
-				index += 2;
 				break;
 
 			case "-n":
 				n = Integer.parseInt(args[index + 1]);
-				System.out.println("读取到参数n=" + n);
-				index += 2;
 				break;
 
 			default:
 				System.out.println("未知的参数,自动忽略该参数");
-				index += 2;
 				break;
 			}
+			index += 2;
 		}
 	}
 
+	/**
+	 *从命令行启动的入口
+	 * @param args
+	 */
 	public static void main(String[] args) {
 		initial();
 		// 处理传参

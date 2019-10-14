@@ -26,6 +26,7 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.JMenuItem;
@@ -47,8 +48,8 @@ public class GUI {
 
 	static Wallpaper wallpaper; // 初始化一个公用对象
 	static Toolkit toolKit;
-	static JLabel pic; // 图片显示按钮
-	static JTextArea pic_info; // 图片版权等信息
+	static JLabel pic; // 图片显示区域
+	static JTextArea pic_info; // 图片版权等信息显示区域
 	static JButton btn_download;// 下载按钮
 
 	/**
@@ -60,6 +61,7 @@ public class GUI {
 				try {
 					GUI window = new GUI();
 					window.frmBingWallpaper.setVisible(true);
+					System.out.println("Notice：PageUp切换上一天壁纸，PageDown切换下一天壁纸！");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -91,8 +93,6 @@ public class GUI {
 		frmBingWallpaper.setIconImage(Toolkit.getDefaultToolkit().getImage("./bing_logo.png"));
 		frmBingWallpaper.getContentPane().setBackground(new Color(255, 255, 255));
 		frmBingWallpaper.setBackground(new Color(255, 255, 255));
-		// frmBingWallpaper.setBounds(50, 50,745, 600 );
-
 		frmBingWallpaper.setSize(744, 650);
 		frmBingWallpaper.setLocationRelativeTo(null);
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,7 +101,7 @@ public class GUI {
 		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		manager.addKeyEventPostProcessor((KeyEventPostProcessor) this.getMyKeyEventHandler());
 
-		// 菜单栏
+		// ===========================菜单栏======================================
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setFont(new Font("宋体", Font.PLAIN, 12));
 		frmBingWallpaper.setJMenuBar(menuBar);
@@ -157,6 +157,7 @@ public class GUI {
 		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menuBar.add(menu_1);
 
+		//About
 		JMenuItem menuItem = new JMenuItem("关于下载器");
 		menuItem.addMouseListener(new MouseAdapter() {
 			@Override
@@ -168,9 +169,26 @@ public class GUI {
 		});
 		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_1.add(menuItem);
+		
+		//=================批量获取====================
+		JLabel lblNewLabel = new JLabel("  批量获取");
+		lblNewLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("批量获取中……");
+				Di di = new Di();
+				di.setTitle("批量获取");
+				di.setModal(true);
+				di.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+				di.setLocationRelativeTo(null);
+				di.setVisible(true);
+			}
+		});
+		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 12));
+		menuBar.add(lblNewLabel);
 		frmBingWallpaper.getContentPane().setLayout(null);
 
-		// 预览图片
+		// ==========================预览图片===============================
 		toolKit = frmBingWallpaper.getToolkit();
 		// 获取图像
 		try {
@@ -184,7 +202,7 @@ public class GUI {
 		pic.setBounds(8, 8, 720, 405);
 		frmBingWallpaper.getContentPane().add(pic);
 
-		// 图片的版权信息
+		// ========================图片的版权信息==============================
 		pic_info = new JTextArea(2, 40);
 		pic_info.setLineWrap(true); // 激活自动换行功能
 		pic_info.setWrapStyleWord(true); // 激活断行不断字功能
@@ -192,22 +210,21 @@ public class GUI {
 		pic_info.setBounds(18, 422, 710, 21);
 		pic_info.append("图片信息，请认真看待版权问题！");
 		pic_info.setEditable(false);
-		// System.out.println(wallpaper.getCopyright());
 		frmBingWallpaper.getContentPane().add(pic_info);
 
-		// 分隔线
+		// =====================分隔线==========================
 		JSeparator separator = new JSeparator();
 		separator.setForeground(Color.GRAY);
 		separator.setBounds(8, 453, 720, 8);
 		frmBingWallpaper.getContentPane().add(separator);
 
-		// 图片下方的
-		JLabel lblNewLabel = new JLabel("壁纸路径");
-		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 14));
-		lblNewLabel.setBounds(8, 464, 71, 21);
-		frmBingWallpaper.getContentPane().add(lblNewLabel);
+		// =====================label===========================
+		JLabel label = new JLabel("壁纸路径");
+		label.setFont(new Font("宋体", Font.PLAIN, 14));
+		label.setBounds(8, 464, 71, 21);
+		frmBingWallpaper.getContentPane().add(label);
 
-		// 路径
+		// =====================路径==========================
 		text_path = new JTextField(Bing.path);
 		text_path.addFocusListener(new FocusListener() {
 			@Override
@@ -219,6 +236,8 @@ public class GUI {
 				System.out.println("试图修改路径");
 				// 失焦的时候将填写的路径保存
 				String text = text_path.getText();
+				
+				//手动输入地址‘/’自动补全
 				if (!text.endsWith("/"))
 					text = text + "/";
 				Bing.path = text;
@@ -228,17 +247,16 @@ public class GUI {
 
 		text_path.setBounds(81, 464, 436, 21);
 		frmBingWallpaper.getContentPane().add(text_path);
-		text_path.setColumns(10);
 
+		//=====================路径选择按钮=============================
 		JButton btn_chosesPath = new JButton("选择");
 		btn_chosesPath.setBackground(SystemColor.controlHighlight);
 		btn_chosesPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 				JFileChooser jfc = new JFileChooser();
-				// 设置当前路径为桌面路径,否则将我的文档作为默认路径
 				FileSystemView fsv = FileSystemView.getFileSystemView();
 				jfc.setCurrentDirectory(fsv.getHomeDirectory());
-				// JFileChooser.FILES_AND_DIRECTORIES 选择路径和文件
 				jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				// 用户选择的路径或文件
 				if (jfc.showOpenDialog(frmBingWallpaper) == JFileChooser.APPROVE_OPTION) {
@@ -258,7 +276,7 @@ public class GUI {
 		btn_chosesPath.setBounds(532, 463, 93, 23);
 		frmBingWallpaper.getContentPane().add(btn_chosesPath);
 
-		// 变小的下载按钮
+		// =============================变小的下载按钮=============================
 		btn_download = new JButton("开始下载");
 		btn_download.setBackground(SystemColor.controlHighlight);
 		btn_download.addActionListener(new ActionListener() {
@@ -274,13 +292,13 @@ public class GUI {
 		btn_download.setEnabled(false);
 		frmBingWallpaper.getContentPane().add(btn_download);
 
-		// 实时日志
+		// =========================实时日志==================================
 		try {
 			log = new ConsoleTextArea();
 			log.setFont(new Font("Monospaced", Font.PLAIN, 13));
 			log.setEditable(false);
 		} catch (IOException e) {
-			System.err.println("不能创建LoopedStreams：" + e);
+			System.err.println("无法创建LoopedStreams：" + e);
 			System.exit(1);
 		}
 		JScrollPane scroll = new JScrollPane(log);
@@ -293,8 +311,9 @@ public class GUI {
 		frmBingWallpaper.getContentPane().add(scroll);
 	}
 
+	//================================监听处理================================================
 	/**
-	 * 监听处理
+	 * 图片切换按键监听
 	 * 
 	 * @return
 	 */
@@ -337,9 +356,9 @@ public class GUI {
 	}
 
 	/**
-	 * 刷新
+	 * 刷新处理，刷新整个界面
 	 * 
-	 * @param i day
+	 * @param i 日期标记
 	 */
 	static void changePic(int i) {
 		try {

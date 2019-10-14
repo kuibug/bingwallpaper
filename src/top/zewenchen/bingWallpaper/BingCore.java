@@ -19,8 +19,6 @@ public class BingCore {
 	final static String PIC_1080 = "_1920x1080.jpg";
 	final static String PIC_720 = "_1366x768.jpg";
 
-	static String MKT = "zh-CN";
-
 	// 保存地址(路径最后有一个/)
 	static String path = "./Bingwallpaper/";
 
@@ -51,11 +49,17 @@ public class BingCore {
 	/**
 	 * 通过微软API获取正确的下载地址 format 返回类型 js xml idx 图片时间 -1(明天)0(今天)1(昨天)2(前天)最多回去到前7天的内容
 	 * 
-	 * @return JSONObject
+	 * @mkt 区域 en-US/zh-CN
+	 * @url https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN //
+	 * @idx:天数
+	 * @n ：数量
+	 * 
+	 * @return JSONObject[]
 	 */
-	static JSONObject[] getInfo(int day,int n) {
-		JSONObject[] picInfoArr = new JSONObject[n]; 
-
+	static JSONObject[] getInfo(int day, int n) {
+		JSONObject[] picInfoArr = new JSONObject[n];
+		String MKT;
+		
 		boolean setCookie = false;
 		// 行对参数进行判断是否合法,非法则返回上一次的值,默认开启会注入一个默认值,所以不会空
 		if (day < -1 || day > 7) {
@@ -66,14 +70,11 @@ public class BingCore {
 		if (Bing.mkt.toLowerCase().equals("us")) {
 			MKT = "en-US";
 			setCookie = true;
+		} else {
+			MKT = "zh-CN";
 		}
 
-		// en-US
-		// zh-CN
-		// https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN
-		// idx:天数； n ：数量； mkt ：区域
-		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=" + n + "&mkt="
-				+ MKT;
+		String requestURL = "https://cn.bing.com/HPImageArchive.aspx?format=js&idx=" + day + "&n=" + n + "&mkt=" + MKT;
 		String json = null;
 		URL requestUrl = null;
 
@@ -81,15 +82,15 @@ public class BingCore {
 			// 初始化链接
 			requestUrl = new URL(requestURL);
 			HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
-			
-			//国内版不能加国际版cookie否则会造成错误
-			if(setCookie) {
+
+			// 国内版不能加国际版cookie否则会造成错误
+			if (setCookie) {
 				connection.setRequestProperty("Cookie", Bing.cookie);
 			}
 			connection.connect();
 
 			// 使用BufferedReader获取url的json数据
-			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(),"utf-8"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream(), "utf-8"));
 			json = reader.readLine();
 
 			// 关闭资源
@@ -100,12 +101,12 @@ public class BingCore {
 			System.err.println("获取地址出现错误" + e);
 			e.printStackTrace();
 		}
-		
-		//使用fastjson进行序列化
+
+		// 使用fastjson进行序列化
 		Object object = JSON.parseObject(json).get("images");
-		//System.out.println("echo:getURL RETURN" + object);
-		
-		for(int i = 0;i<n;i++) {
+		// System.out.println("echo:getURL RETURN" + object);
+
+		for (int i = 0; i < n; i++) {
 			picInfoArr[i] = JSON.parseArray(object.toString()).getJSONObject(i);
 		}
 		return picInfoArr;
