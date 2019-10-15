@@ -236,7 +236,7 @@ public class GUI {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				System.out.println("试图修改路径");
+				//System.out.println("试图修改路径");
 				// 失焦的时候将填写的路径保存
 				String text = text_path.getText();
 
@@ -270,8 +270,9 @@ public class GUI {
 						text_path.setText(file.getAbsolutePath());
 						Bing.path = file.getAbsolutePath();
 						wallpaper.setPath(file.getAbsolutePath());
+						System.out.println("info:下载路径已修改为 " + Bing.path);
 					} else if (file.isFile()) {
-						System.out.println("这是个文件:" + file.getAbsolutePath());
+						System.out.println("err：这是个文件:" + file.getAbsolutePath());
 					}
 				}
 			}
@@ -284,8 +285,6 @@ public class GUI {
 		btn_download.setBackground(SystemColor.controlHighlight);
 		btn_download.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Utils.judeDir(Bing.path);
-				System.out.println("下载路径已修改为 " + Bing.path);
 				BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
 				btn_download.setText("下载完成！");
 			}

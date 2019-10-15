@@ -22,7 +22,7 @@ public class Wallpaper {
 	 * @param copyright
 	 */
 	public Wallpaper(String path, String url, String name, String copyright) {
-		this("cn", path, "1080", url, name, copyright);
+		this("cn", path, "720", url, name, copyright);
 	}
 
 	/**

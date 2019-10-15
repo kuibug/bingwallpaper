@@ -69,7 +69,7 @@ public class Di extends JDialog {
 		size.addItem(6);
 		size.addItem(7);
 		contentPanel.add(size);
-		
+
 		JTextPane textPane = new JTextPane();
 		textPane.setText("以起始日期开始往回获取 N 张");
 		textPane.setBounds(162, 32, 187, 27);
@@ -84,10 +84,13 @@ public class Di extends JDialog {
 			getRootPane().setDefaultButton(downloadButton);
 			downloadButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					Bing.getWallpapers((int) date.getSelectedItem(), (int) size.getSelectedItem());
+					int day = (int) date.getSelectedItem();
+					int n = (int) size.getSelectedItem();
+					Wallpaper[] wallpapers = Bing.getWallpapers(day, n);
+					Bing.downloadPictures(wallpapers,n);
 					downloadButton.setText("下载完毕！");
 					System.out.println();
-					//dispose();
+					// dispose();
 				}
 			});
 		}

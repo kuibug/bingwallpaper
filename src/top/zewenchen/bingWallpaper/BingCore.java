@@ -15,44 +15,14 @@ import com.alibaba.fastjson.JSONObject;
 import top.zewenchen.util.Utils;
 
 public class BingCore {
-	final static String BING_SITE = "https://cn.bing.com";
-	final static String PIC_1080 = "_1920x1080.jpg";
-	final static String PIC_720 = "_1366x768.jpg";
-
-	// 保存地址(路径最后有一个/)
-	static String path = "./Bingwallpaper/";
-
-	// 下载地址
-	static URL url;
-
-	// 文件名称
-	static String wallpaperName;
-
-	// 下载图片的信息是一个jsonArray，0是下载图片的相关信息，1上有使用范围
-	static JSONObject picInfo;
-
-	static int Pixel = 1080;
-
-	static URL getURL(String pixle) {
-		URL url = null;
-
-		String baseUrl = picInfo.get("urlbase").toString();
-		String urlStr = BING_SITE + baseUrl + pixle;
-		try {
-			url = new URL(urlStr);
-		} catch (Exception e) {
-			System.err.println(e);
-		}
-		return url;
-	}
 
 	/**
 	 * 通过微软API获取正确的下载地址 format 返回类型 js xml idx 图片时间 -1(明天)0(今天)1(昨天)2(前天)最多回去到前7天的内容
 	 * 
 	 * @mkt 区域 en-US/zh-CN
 	 * @url https://cn.bing.com/HPImageArchive.aspx?format=js&idx=0&n=1&mkt=zh-CN //
-	 * @idx:天数
-	 * @n ：数量
+	 * @idx:起始日期
+	 * @n ：获取数量
 	 * 
 	 * @return JSONObject[]
 	 */
@@ -120,7 +90,7 @@ public class BingCore {
 
 		try {
 			DataInputStream dataInputStream = new DataInputStream(url.openStream());
-			System.out.println(url + path + wallpaperName);
+			System.out.println("  http_get===》"+url);
 			Utils.judeDir(path);
 			// 初始化文件
 			String imageName = path + "/" + wallpaperName;

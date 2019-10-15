@@ -1,15 +1,14 @@
 package top.zewenchen.bingWallpaper;
 
+import java.util.concurrent.CountDownLatch;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
 import top.zewenchen.util.Utils;
 
 public class Bing {
-	final static String BING_SITE = "https://cn.bing.com";
-	final static String PIXEL_1080 = "_1920x1080.jpg";
-	final static String PIXEL_720 = "_1366x768.jpg";
-
+	
 	static String path = "./BingWallpaper";// 图片地址
 	static String name = "link";// 使用
 	static String mkt = "cn";// 区域
@@ -17,6 +16,7 @@ public class Bing {
 	static int n = 1;// 批量获取
 	static String cookie;// cookie
 	static int day = 0;// 发布日期
+	static boolean saved = false;
 
 	public static void initial() {
 		try {
@@ -71,33 +71,31 @@ public class Bing {
 		Utils.writeFile(str, "config.json");
 	}
 
-	// 默认偷懒
-	static Wallpaper getWallpaper() {
+	// 偷懒获取法
+	protected static Wallpaper getWallpaper() {
 		return getWallpaper(0);
 	}
 
-	// 偷懒获取
-	static Wallpaper getWallpaper(int day) {
-
-		JSONObject info = BingCore.getInfo(day, 1)[0];
-		String fileName = null;
-		if (name.toLowerCase().equals("link")) {
-			fileName = info.getString("urlbase").substring(11);
-		} else {
-			fileName = info.getString("startdate");
-		}
-		return new Wallpaper(mkt, path, pixel, info.getString("urlbase"), fileName, info.get("copyright").toString());
+	/**
+	 * 获取单张壁纸
+	 * 
+	 * @param day
+	 * @return Wallpaper
+	 */
+	protected static Wallpaper getWallpaper(int day) {
+		return getWallpapers(day, 1)[0];
 	}
 
 	/**
-	 * 批量获取
+	 * 批量下载
 	 * 
-	 * @return Wallpaper[]
+	 * @param day
+	 * @param n   （n > 1）
 	 */
-	static Wallpaper[] getWallpapers(int day, int n) {
-		System.out.println(day + n);
+	protected static Wallpaper[] getWallpapers(int day, int n) {
 		System.out.println("总共" + n + "张壁纸，正在获取下载链接，请稍等！");
 		Wallpaper[] wallpapers = new Wallpaper[n];
+
 		// 获取信息
 		JSONObject[] info = BingCore.getInfo(day, n);
 		for (int i = 0; i < n; i++) {
@@ -109,15 +107,9 @@ public class Bing {
 			}
 			wallpapers[i] = new Wallpaper(mkt, path, pixel, info[i].getString("urlbase"), fileName,
 					info[i].getString("copyright"));
+
 		}
 
-		// 开始下载
-		for (Wallpaper wallpaper : wallpapers) {
-			System.out.println("还剩" + n + "张未下载");
-			BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
-			n--;
-		}
-		System.out.println("批量获取，下载完成！");
 		return wallpapers;
 	}
 
@@ -159,10 +151,21 @@ public class Bing {
 				mkt = args[index + 1];
 				break;
 
+			case "-s":
+				saved = true;
+				break;
+
 			case "-n":
 				tmp = Integer.parseInt(args[index + 1]);
-				if (tmp > 1)
+				if (tmp > 8) {
+					n = 7;
+					System.out.println("-n参数超范围！自动修正为 '7' ");
+				} else if (tmp < 2) {
+					n = 2;
+					System.out.println("-n参数超范围！自动修正为 '2' ");
+				} else {
 					n = tmp;
+				}
 				break;
 
 			default:
@@ -183,15 +186,50 @@ public class Bing {
 		// 处理传参
 		hasArgs(args);
 
-		// 批量获取（为了不重构，我算是心机用尽了……）
+		// 批量获取判断
 		if (n > 1) {
-			getWallpapers(day, n);
+			// 开始下载
+			Wallpaper[] wallpapers = getWallpapers(day, n);
+			downloadPictures(wallpapers, n);
 			return;
 		}
 
-		Wallpaper wallpaper = getWallpaper();
+		// 只获取一张
+		Wallpaper wallpaper = getWallpaper(day);
 		BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
-		System.out.println("下载结束，保存配置中");
-		saveConfig();
+		System.out.println("  pic_info:" + wallpaper.getCopyright());
+
+		// 判断是是否需要参数
+		if (saved) {
+			saveConfig();
+		}
+	}
+
+	/**
+	 * 多线程下载壁纸
+	 * 
+	 * @param wallpapers
+	 * @param size
+	 */
+	protected static void downloadPictures(Wallpaper[] wallpapers, int size) {
+		CountDownLatch pool = new CountDownLatch(size);
+		// 为每张壁纸建立一个线程下载
+		for (Wallpaper wallpaper : wallpapers) {
+			new Thread(() -> {
+				System.out.println("线程建立");
+				BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+				System.out.println("\tpic_info:" + wallpaper.getCopyright());
+				System.out.println();
+				pool.countDown();
+			}).start();
+		}
+
+		try {
+			//等待所有子线程结束
+			pool.await();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		System.out.println("批量获取，下载完成！共" + size + "张");
 	}
 }
