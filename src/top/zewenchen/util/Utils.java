@@ -1,4 +1,4 @@
-package top.zewenchen.bingWallpaper;
+package top.zewenchen.util;
 
 import java.awt.Desktop;
 import java.io.BufferedReader;
@@ -66,7 +66,7 @@ public class Utils {
 	 * 
 	 * @param content
 	 */
-	static void writeFile(String content, String file) {
+	public static void writeFile(String content, String file) {
 		FileWriter fw = null;
 		try {
 			fw = new FileWriter(file);

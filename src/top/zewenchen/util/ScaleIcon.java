@@ -1,4 +1,4 @@
-package top.zewenchen.bingWallpaper;
+package top.zewenchen.util;
 
 
 import java.awt.Component;

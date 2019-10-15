@@ -1,5 +1,9 @@
 package top.zewenchen.bingWallpaper;
 
+import top.zewenchen.util.ConsoleTextArea;
+import top.zewenchen.util.ScaleIcon;
+import top.zewenchen.util.Utils;
+
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.KeyEventPostProcessor;
@@ -22,11 +26,13 @@ import javax.swing.JLabel;
 import javax.swing.ImageIcon;
 import javax.swing.filechooser.FileSystemView;
 import javax.swing.JButton;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
 import javax.swing.JMenuItem;
 import javax.swing.JMenu;
 import javax.swing.JRadioButtonMenuItem;
+import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JTextArea;
 
@@ -36,12 +42,18 @@ import java.io.IOException;
 public class GUI {
 
 	private JFrame frmBingWallpaper;
-	private JTextField text_path;
-	private int dayU = 0;
-	Wallpaper wallpaper;
-	Toolkit toolKit;
-	JLabel pic = null;
-	JTextArea pic_info;
+	private JTextField text_path; // 下载路径
+	private ConsoleTextArea log; // 日志预览
+	private int dayU = 0; // 日期标记
+
+	static Wallpaper wallpaper; // 初始化一个公用对象
+	static Toolkit toolKit;
+	static JLabel pic; // 图片显示区域
+	static JTextArea pic_info; // 图片版权等信息显示区域
+	static JButton btn_download;// 下载按钮
+
+	static int UP_KEY = KeyEvent.VK_F7;
+	static int DOWD_KEY = KeyEvent.VK_F8;
 
 	/**
 	 * Launch the application.
@@ -52,18 +64,24 @@ public class GUI {
 				try {
 					GUI window = new GUI();
 					window.frmBingWallpaper.setVisible(true);
+					System.out.println("Notice：默认以F7切换上一天壁纸，F8切换下一天壁纸！");
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
 			}
 		});
+
+		// 新建一个线程区优化加载速度
+		new Thread(() -> {
+			Bing.initial();
+			changePic(0);
+		}).start();
 	}
 
 	/**
 	 * Create the application.
 	 */
 	public GUI() {
-		Bing.initial();
 		initialize();
 	}
 
@@ -78,9 +96,7 @@ public class GUI {
 		frmBingWallpaper.setIconImage(Toolkit.getDefaultToolkit().getImage("./bing_logo.png"));
 		frmBingWallpaper.getContentPane().setBackground(new Color(255, 255, 255));
 		frmBingWallpaper.setBackground(new Color(255, 255, 255));
-		// frmBingWallpaper.setBounds(50, 50,745, 600 );
-
-		frmBingWallpaper.setSize(744, 610);
+		frmBingWallpaper.setSize(744, 650);
 		frmBingWallpaper.setLocationRelativeTo(null);
 		frmBingWallpaper.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
@@ -88,7 +104,7 @@ public class GUI {
 		KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
 		manager.addKeyEventPostProcessor((KeyEventPostProcessor) this.getMyKeyEventHandler());
 
-		// 菜单栏
+		// ===========================菜单栏======================================
 		JMenuBar menuBar = new JMenuBar();
 		menuBar.setFont(new Font("宋体", Font.PLAIN, 12));
 		frmBingWallpaper.setJMenuBar(menuBar);
@@ -144,6 +160,7 @@ public class GUI {
 		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
 		menuBar.add(menu_1);
 
+		// About
 		JMenuItem menuItem = new JMenuItem("关于下载器");
 		menuItem.addMouseListener(new MouseAdapter() {
 			@Override
@@ -155,20 +172,32 @@ public class GUI {
 		});
 		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
 		menu_1.add(menuItem);
+
+		// =================批量获取====================
+		JLabel lblNewLabel = new JLabel("  批量获取");
+		lblNewLabel.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				System.out.println("批量获取中……");
+				Di di = new Di();
+				di.setTitle("批量获取");
+				di.setModal(true);
+				di.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+				di.setLocationRelativeTo(null);
+				di.setVisible(true);
+			}
+		});
+		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 12));
+		menuBar.add(lblNewLabel);
 		frmBingWallpaper.getContentPane().setLayout(null);
 
-		// 预览图片
-		// String urlStr =
-		// "https://cn.bing.com/th?id=OHR.BardenasDesert_ZH-CN1357611840_1920x1080.jpg";
-		wallpaper = Bing.getWallpaper();
+		// ==========================预览图片===============================
 		toolKit = frmBingWallpaper.getToolkit();
 		// 获取图像
 		try {
-			// URL url = new URL(urlStr);// test
-			// Image image = toolKit.getImage(url);// test
-			Image image = toolKit.getImage(wallpaper.getUrl());// run
-			ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
-			pic = new JLabel(icon);
+			pic = new JLabel("loading……");
+			pic.setHorizontalAlignment(JLabel.CENTER);
+			pic.setFont(new Font("Monospaced", Font.BOLD, 28));
 		} catch (Exception e1) {
 			e1.printStackTrace();
 		}
@@ -176,30 +205,29 @@ public class GUI {
 		pic.setBounds(8, 8, 720, 405);
 		frmBingWallpaper.getContentPane().add(pic);
 
-		// 图片的版权信息
+		// ========================图片的版权信息==============================
 		pic_info = new JTextArea(2, 40);
 		pic_info.setLineWrap(true); // 激活自动换行功能
 		pic_info.setWrapStyleWord(true); // 激活断行不断字功能
-		pic_info.setFont(new Font("宋体", Font.PLAIN, 12));
-		pic_info.setBounds(18, 422, 710, 30);
-		pic_info.append(wallpaper.getCopyright());
+		pic_info.setFont(new Font("Monospaced", Font.PLAIN, 13));
+		pic_info.setBounds(18, 422, 710, 21);
+		pic_info.append("图片信息，请认真看待版权问题！");
 		pic_info.setEditable(false);
-		System.out.println(wallpaper.getCopyright());
 		frmBingWallpaper.getContentPane().add(pic_info);
 
-		// 分隔线
+		// =====================分隔线==========================
 		JSeparator separator = new JSeparator();
 		separator.setForeground(Color.GRAY);
-		separator.setBounds(8, 462, 720, 8);
+		separator.setBounds(8, 453, 720, 8);
 		frmBingWallpaper.getContentPane().add(separator);
 
-		// 图片下方的
-		JLabel lblNewLabel = new JLabel("壁纸路径");
-		lblNewLabel.setFont(new Font("宋体", Font.PLAIN, 14));
-		lblNewLabel.setBounds(8, 480, 71, 21);
-		frmBingWallpaper.getContentPane().add(lblNewLabel);
+		// =====================label===========================
+		JLabel label = new JLabel("壁纸路径");
+		label.setFont(new Font("宋体", Font.PLAIN, 14));
+		label.setBounds(8, 464, 71, 21);
+		frmBingWallpaper.getContentPane().add(label);
 
-		// 路径
+		// =====================路径==========================
 		text_path = new JTextField(Bing.path);
 		text_path.addFocusListener(new FocusListener() {
 			@Override
@@ -208,9 +236,11 @@ public class GUI {
 
 			@Override
 			public void focusLost(FocusEvent e) {
-				System.out.println("试图修改路径");
+				//System.out.println("试图修改路径");
 				// 失焦的时候将填写的路径保存
 				String text = text_path.getText();
+
+				// 手动输入地址‘/’自动补全
 				if (!text.endsWith("/"))
 					text = text + "/";
 				Bing.path = text;
@@ -218,19 +248,18 @@ public class GUI {
 			}
 		});
 
-		text_path.setBounds(81, 480, 544, 21);
+		text_path.setBounds(81, 464, 436, 21);
 		frmBingWallpaper.getContentPane().add(text_path);
-		text_path.setColumns(10);
 
+		// =====================路径选择按钮=============================
 		JButton btn_chosesPath = new JButton("选择");
 		btn_chosesPath.setBackground(SystemColor.controlHighlight);
 		btn_chosesPath.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+
 				JFileChooser jfc = new JFileChooser();
-				// 设置当前路径为桌面路径,否则将我的文档作为默认路径
 				FileSystemView fsv = FileSystemView.getFileSystemView();
 				jfc.setCurrentDirectory(fsv.getHomeDirectory());
-				// JFileChooser.FILES_AND_DIRECTORIES 选择路径和文件
 				jfc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 				// 用户选择的路径或文件
 				if (jfc.showOpenDialog(frmBingWallpaper) == JFileChooser.APPROVE_OPTION) {
@@ -241,32 +270,52 @@ public class GUI {
 						text_path.setText(file.getAbsolutePath());
 						Bing.path = file.getAbsolutePath();
 						wallpaper.setPath(file.getAbsolutePath());
+						System.out.println("info:下载路径已修改为 " + Bing.path);
 					} else if (file.isFile()) {
-						System.out.println("这是个文件:" + file.getAbsolutePath());
+						System.out.println("err：这是个文件:" + file.getAbsolutePath());
 					}
 				}
 			}
 		});
-		btn_chosesPath.setBounds(635, 479, 93, 23);
+		btn_chosesPath.setBounds(532, 463, 93, 23);
 		frmBingWallpaper.getContentPane().add(btn_chosesPath);
 
-		// 巨大的下载按钮
-		JButton btn_download = new JButton("开始下载");
+		// =============================变小的下载按钮=============================
+		btn_download = new JButton("开始下载");
 		btn_download.setBackground(SystemColor.controlHighlight);
 		btn_download.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Utils.judeDir(Bing.path);
-				System.out.println("下载路径已修改为 " + Bing.path);
 				BingCore.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
 				btn_download.setText("下载完成！");
 			}
 		});
-		btn_download.setBounds(8, 512, 720, 38);
+		btn_download.setBounds(635, 463, 95, 23);
+		// 初始状态不可用，防止下载错误
+		btn_download.setEnabled(false);
 		frmBingWallpaper.getContentPane().add(btn_download);
+
+		// =========================实时日志==================================
+		try {
+			log = new ConsoleTextArea();
+			log.setFont(new Font("Monospaced", Font.PLAIN, 13));
+			log.setEditable(false);
+		} catch (IOException e) {
+			System.err.println("err:无法创建LoopedStreams：" + e);
+			System.exit(1);
+		}
+		JScrollPane scroll = new JScrollPane(log);
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+
+		log.setBounds(8, 511, 720, 39);
+		scroll.setBounds(8, 495, 720, 95);
+		scroll.setViewportView(log);
+		frmBingWallpaper.getContentPane().add(scroll);
 	}
 
+	// ================================监听处理================================================
 	/**
-	 * 监听处理
+	 * 图片切换按键监听
 	 * 
 	 * @return
 	 */
@@ -274,28 +323,40 @@ public class GUI {
 		return new KeyEventPostProcessor() {
 			public boolean postProcessKeyEvent(KeyEvent e) {
 
-				// PAGE_UP
-				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_UP) {
-					System.out.println("按下了pgup,正在尝试切换到上一天的壁纸");
-					if (dayU < 7) {
-						dayU++;
-						new Thread(() -> {changePic(dayU);}).start();
-					} else {
-						System.out.println("切换失败，超出最大范围“7”");
-					}
+				//这里改成KEY_RELEASED，防止按下之后疯狂切换
+				if (e.getID() == KeyEvent.KEY_RELEASED) {
+					System.out.println(
+							"info：key = '" + KeyEvent.getKeyText(e.getKeyCode()) + "', keycode = " + e.getKeyCode());
+					// 上翻
+					if (e.getKeyCode() == UP_KEY) {
+						System.out.println("正在尝试切换到上一天的壁纸");
 
-				}
-				// PAGE_DOWN
-				if (e.paramString().charAt(4) == 'P' && e.getKeyCode() == KeyEvent.VK_PAGE_DOWN) {
-					System.out.println("按下了pgdown，正在尝试切换到下一天的壁纸");
-					if (dayU > -1) {
-						dayU--;
-						new Thread(() -> {changePic(dayU);}).start();
-					} else {
-						System.out.println("切换失败，超出范围“-1”");
-					}
+						if (dayU < 7) {
+							dayU++;
+							new Thread(() -> {
+								changePic(dayU);
+							}).start();
+						} else {
+							System.out.println("已经到尽头了，再怎么翻也没有啦~(￣▽￣)~*");
+						}
 
+					}
+					// 下翻
+					if (e.getKeyCode() == DOWD_KEY) {
+						System.out.println("正在尝试切换到下一天的壁纸");
+
+						if (dayU > 0) {
+							dayU--;
+							new Thread(() -> {
+								changePic(dayU);
+							}).start();
+						} else {
+							System.out.println("已经是最新的啦！\\(0^◇^0)/");
+						}
+
+					}
 				}
+
 				return true;
 			}
 
@@ -303,17 +364,26 @@ public class GUI {
 	}
 
 	/**
-	 * 刷新预览
+	 * 刷新处理，刷新整个界面
 	 * 
-	 * @param i
+	 * @param i 日期标记
 	 */
-	void changePic(int i) {
-		Wallpaper newWallpaper = Bing.getWallpaper(i);
-		Image image = toolKit.getImage(newWallpaper.getUrl());// run
+	static void changePic(int i) {
+		try {
+			wallpaper = Bing.getWallpaper(i);
+		} catch (Exception e) {
+			pic.setText("壁纸获取失败，请检查网络！");
+		}
+		Image image = toolKit.getImage(wallpaper.getUrl());
 		ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
 		// 刷新预览图
 		pic.setIcon(icon);
-		// 刷新信息
-		pic_info.setText(newWallpaper.getCopyright());
+		// 刷新版权信息
+		pic_info.setText(wallpaper.getCopyright());
+		// 刷新按钮状态
+		btn_download.setEnabled(true);
+		btn_download.setText("开始下载");
+
+		System.out.println("壁纸加载成功！当前日期代码" + i);
 	}
 }
