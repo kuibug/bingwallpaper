@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>top.kuibug</groupId>
+    <artifactId>bingWallpaper</artifactId>
+    <version>1.0.1</version>
+    <packaging>jar</packaging>
+    <description>bing-wallpaper-downloader</description>
+
+
+    <properties>
+        <file.encoding>UTF-8</file.encoding>
+        <java.version>1.8</java.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>1.2.45</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+
+        <!-- 产生的构件的文件名，默认值是${artifactId}-${version}。 -->
+        <finalName>bingWallpaper</finalName>
+
+        <!-- 构建产生的所有文件存放的目录,默认为${basedir}/target，即项目根目录下的target -->
+        <directory>${basedir}/target</directory>
+
+        <!--当项目没有规定目标（Maven2叫做阶段（phase））时的默认值， -->
+        <!--必须跟命令行上的参数相同例如jar:jar，或者与某个阶段（phase）相同例如install、compile等 -->
+        <defaultGoal>install</defaultGoal>
+
+        <!--当filtering开关打开时，使用到的过滤器属性文件列表。 -->
+        <!--项目配置信息中诸如${spring.version}之类的占位符会被属性文件中的实际值替换掉 -->
+        <filters>
+            <filter>../filter.properties</filter>
+        </filters>
+
+        <!--项目相关的所有资源路径列表，例如和项目相关的配置文件、属性文件，这些资源被包含在最终的打包文件里。 -->
+        <resources>
+            <resource>
+
+                <!--描述了资源的目标路径。该路径相对target/classes目录（例如${project.build.outputDirectory}）。 -->
+                <!--举个例子，如果你想资源在特定的包里(org.apache.maven.messages)，你就必须该元素设置为org/apache/maven/messages。 -->
+                <!--然而，如果你只是想把资源放到源码目录结构里，就不需要该配置。 -->
+                <targetPath>resources</targetPath>
+
+                <!--是否使用参数值代替参数名。参数值取自properties元素或者文件里配置的属性，文件在filters元素里列出。 -->
+                <filtering>true</filtering>
+
+                <!--描述存放资源的目录，该路径相对POM路径 -->
+                <directory>src/main/resources</directory>
+
+                <!--包含的模式列表 -->
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+
+                <!--排除的模式列表 如果<include>与<exclude>划定的范围存在冲突，以<exclude>为准 -->
+                <excludes>
+                    <exclude>**/*.bat</exclude>
+                </excludes>
+
+            </resource>
+        </resources>
+
+
+        <!--项目源码目录，当构建项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
+        <sourceDirectory>${basedir}/src/main/java</sourceDirectory>
+
+        <!--项目脚本源码目录，该目录和源码目录不同， 绝大多数情况下，该目录下的内容会被拷贝到输出目录(因为脚本是被解释的，而不是被编译的)。 -->
+        <scriptSourceDirectory>${basedir}/src/main/resources</scriptSourceDirectory>
+
+        <!--被编译过的应用程序class文件存放的目录。 -->
+        <outputDirectory>${basedir}/target/classes</outputDirectory>
+
+        <!--被编译过的测试class文件存放的目录。 -->
+        <testOutputDirectory>${basedir}/target/test-classes</testOutputDirectory>
+
+
+    </build>
+
+
+    <repositories>
+        <repository>
+            <id>public</id>
+            <name>aliyun nexus</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </repository>
+    </repositories>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>public</id>
+            <name>aliyun nexus</name>
+            <url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+</project>
