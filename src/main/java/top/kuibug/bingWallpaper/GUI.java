@@ -31,38 +31,24 @@ public class GUI {
      */
     public static void main(String[] args) {
         EventQueue.invokeLater(() -> {
-            try {
-                GUI window = new GUI();
-                window.frmBingWallpaper.setVisible(true);
-                System.out.println("Notice：默认以F7切换上一天壁纸，F8切换下一天壁纸！");
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        // 新建一个线程区优化加载速度
-        new Thread(() -> {
+            GUI window = new GUI();
+            window.frmBingWallpaper.setVisible(true);
+            // 这玩意挪回来，容易丢失Core的初始化日志
             Core.initial();
             changePic(0);
-        }).start();
+            System.out.println("Notice：默认以F7切换上一天壁纸，F8切换下一天壁纸！");
+        });
     }
 
     /**
      * Create the application.
      */
     public GUI() {
-        initialize();
-    }
-
-    /**
-     * Initialize the contents of the frame.
-     */
-    private void initialize() {
         frmBingWallpaper = new JFrame();
         frmBingWallpaper.setResizable(false);
         frmBingWallpaper.setAutoRequestFocus(false);
         frmBingWallpaper.setTitle("Bing Wallpaper Downloader");
-        frmBingWallpaper.setIconImage(Toolkit.getDefaultToolkit().getImage("./bing_logo.png"));
+        frmBingWallpaper.setIconImage(Toolkit.getDefaultToolkit().getImage("bing_logo.png"));
         frmBingWallpaper.getContentPane().setBackground(new Color(255, 255, 255));
         frmBingWallpaper.setBackground(new Color(255, 255, 255));
         frmBingWallpaper.setSize(744, 650);
@@ -99,54 +85,12 @@ public class GUI {
         radioButtonMenuItem_2.setFont(new Font("宋体", Font.PLAIN, 12));
         menu_2.add(radioButtonMenuItem_2);
 
-//		JMenu menu = new JMenu("使用帮助");
-//		menu.setFont(new Font("宋体", Font.PLAIN, 12));
-//		menuBar.add(menu);
-//
-//		JMenuItem menuItem_1 = new JMenuItem("帮助文档");
-//		menuItem_1.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseReleased(MouseEvent e) {
-//				String url = "http://zewenchenkmfoxm.coding.me/bingWallpaper";
-//				Utils.browserUrl(url);
-//			}
-//		});
-//		menuItem_1.setFont(new Font("宋体", Font.PLAIN, 12));
-//		menu.add(menuItem_1);
-//
-//		JMenuItem mntmFqa = new JMenuItem("FQA");
-//		mntmFqa.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseReleased(MouseEvent e) {
-//				String url = "http://zewenchenkmfoxm.coding.me/bingWallpaper";
-//				Utils.browserUrl(url);
-//			}
-//		});
-//		mntmFqa.setFont(new Font("Arial", Font.PLAIN, 12));
-//		menu.add(mntmFqa);
-//
-//		JMenu menu_1 = new JMenu("关于");
-//		menu_1.setFont(new Font("宋体", Font.PLAIN, 12));
-//		menuBar.add(menu_1);
-//
-//		// About
-//		JMenuItem menuItem = new JMenuItem("关于下载器");
-//		menuItem.addMouseListener(new MouseAdapter() {
-//			@Override
-//			public void mouseReleased(MouseEvent e) {
-//				String url = "http://zewenchenkmfoxm.coding.me/bingWallpaper";
-//				Utils.browserUrl(url);
-//			}
-//		});
-//		menuItem.setFont(new Font("宋体", Font.PLAIN, 12));
-//		menu_1.add(menuItem);
-
         // =================批量获取====================
         JLabel lblNewLabel = new JLabel("  批量获取");
         lblNewLabel.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                System.out.println("批量获取中……");
+                System.out.println("批量获取中...");
                 Di di = new Di();
                 di.setTitle("批量获取");
                 di.setModal(true);
@@ -162,13 +106,9 @@ public class GUI {
         // ==========================预览图片===============================
         toolKit = frmBingWallpaper.getToolkit();
         // 获取图像
-        try {
-            pic = new JLabel("loading……");
-            pic.setHorizontalAlignment(JLabel.CENTER);
-            pic.setFont(new Font("Monospaced", Font.BOLD, 28));
-        } catch (Exception e1) {
-            e1.printStackTrace();
-        }
+        pic = new JLabel("loading...");
+        pic.setHorizontalAlignment(JLabel.CENTER);
+        pic.setFont(new Font("Monospaced", Font.BOLD, 28));
 
         pic.setBounds(8, 8, 720, 405);
         frmBingWallpaper.getContentPane().add(pic);
@@ -199,12 +139,10 @@ public class GUI {
         text_path = new JTextField(Core.path);
         text_path.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent e) {
-            }
+            public void focusGained(FocusEvent e) { }
 
             @Override
             public void focusLost(FocusEvent e) {
-                //System.out.println("试图修改路径");
                 // 失焦的时候将填写的路径保存
                 String text = text_path.getText();
 
@@ -220,10 +158,9 @@ public class GUI {
         frmBingWallpaper.getContentPane().add(text_path);
 
         // =====================路径选择按钮=============================
-        JButton btn_chosesPath = new JButton("选择");
-        btn_chosesPath.setBackground(SystemColor.controlHighlight);
-        btn_chosesPath.addActionListener(e -> {
-
+        JButton btn_chosePath = new JButton("选择");
+        btn_chosePath.setBackground(SystemColor.controlHighlight);
+        btn_chosePath.addActionListener(e -> {
             JFileChooser jfc = new JFileChooser();
             FileSystemView fsv = FileSystemView.getFileSystemView();
             jfc.setCurrentDirectory(fsv.getHomeDirectory());
@@ -243,8 +180,8 @@ public class GUI {
                 }
             }
         });
-        btn_chosesPath.setBounds(532, 463, 93, 23);
-        frmBingWallpaper.getContentPane().add(btn_chosesPath);
+        btn_chosePath.setBounds(532, 463, 93, 23);
+        frmBingWallpaper.getContentPane().add(btn_chosePath);
 
         // =============================变小的下载按钮=============================
         btn_download = new JButton("开始下载");
@@ -277,19 +214,16 @@ public class GUI {
         frmBingWallpaper.getContentPane().add(scroll);
     }
 
+
     // ================================监听处理================================================
 
-    /**
-     * 图片切换按键监听
-     *
-     * @return
-     */
+    /**  图片切换按键监听 */
     public KeyEventPostProcessor getMyKeyEventHandler() {
         return e -> {
             //这里改成KEY_RELEASED，防止按下之后疯狂切换
             if (e.getID() == KeyEvent.KEY_RELEASED) {
-                System.out.println(
-                        "info：key = '" + KeyEvent.getKeyText(e.getKeyCode()) + "', keycode = " + e.getKeyCode());
+                System.out.println("info：key = '" + KeyEvent.getKeyText(e.getKeyCode())
+                                + "', keycode = " + e.getKeyCode());
                 // 上翻
                 if (e.getKeyCode() == UP_KEY) {
                     if (dayU < 7) {
@@ -299,7 +233,6 @@ public class GUI {
                     } else {
                         LogUtil.info("已经到尽头了，再怎么翻也没有啦~(￣▽￣)~*");
                     }
-
                 }
                 // 下翻
                 if (e.getKeyCode() == DOWD_KEY) {
@@ -310,7 +243,6 @@ public class GUI {
                     } else {
                         LogUtil.info("已经是最新的啦！\\(0^◇^0)/");
                     }
-
                 }
             }
 
@@ -324,11 +256,7 @@ public class GUI {
      * @param i 日期标记
      */
     static void changePic(int i) {
-        try {
-            wallpaper = Core.getWallpaper(i);
-        } catch (Exception e) {
-            pic.setText("壁纸获取失败，请检查网络！");
-        }
+        wallpaper = Core.getWallpaper(i);
         Image image = toolKit.getImage(wallpaper.getUrl());
         ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
         // 刷新预览图
