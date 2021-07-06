@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Main-Class: top.kuibug.bingWallpaper.GUI
+Class-Path: fastjson-1.2.45.jar
+

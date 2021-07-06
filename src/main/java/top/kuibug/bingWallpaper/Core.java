@@ -1,5 +1,11 @@
 package top.kuibug.bingWallpaper;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import top.kuibug.util.LogUtil;
+import top.kuibug.util.Utils;
+
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -8,18 +14,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import top.kuibug.util.LogUtil;
-import top.kuibug.util.Utils;
-
 public class Core {
 
     static String path = "./BingWallpaper";// 图片地址
     static String name = "link";// 使用
     static String mkt = "cn";// 区域
-    static String pixel = "720";// 区域
+    static String pixel = "1080";// 区域
     static int n = 1;// 批量获取
     static String cookie;// cookie
     static int day = 0;// 发布日期
