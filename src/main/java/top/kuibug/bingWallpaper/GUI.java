@@ -11,9 +11,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class GUI {
-
-    private JFrame frmBingWallpaper;
-    private JTextField text_path; // 下载路径
+    private static final String PREVIEW_PIXEL = "320x240";
+    private final JFrame frmBingWallpaper;
+    private final JTextField text_path; // 下载路径
     private ConsoleTextArea log; // 日志预览
     private int dayU = 0; // 日期标记
 
@@ -139,7 +139,7 @@ public class GUI {
         text_path = new JTextField(Core.path);
         text_path.addFocusListener(new FocusListener() {
             @Override
-            public void focusGained(FocusEvent e) { }
+            public void focusGained(FocusEvent e) {}
 
             @Override
             public void focusLost(FocusEvent e) {
@@ -147,8 +147,9 @@ public class GUI {
                 String text = text_path.getText();
 
                 // 手动输入地址‘/’自动补全
-                if (!text.endsWith("/"))
+                if (!text.endsWith("/")) {
                     text = text + "/";
+                }
                 Core.path = text;
                 wallpaper.setPath(text);
             }
@@ -187,7 +188,7 @@ public class GUI {
         btn_download = new JButton("开始下载");
         btn_download.setBackground(SystemColor.controlHighlight);
         btn_download.addActionListener(e -> {
-            Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+            Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getFileName());
             btn_download.setText("下载完成！");
         });
         btn_download.setBounds(635, 463, 95, 23);
@@ -217,13 +218,33 @@ public class GUI {
 
     // ================================监听处理================================================
 
-    /**  图片切换按键监听 */
+    /**
+     * 刷新处理，刷新整个界面
+     *
+     * @param i 日期标记
+     */
+    static void changePic(int i) {
+        wallpaper = Core.getWallpaper(i, PREVIEW_PIXEL);
+        Image image = toolKit.getImage(wallpaper.getUrl());
+        ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
+        // 刷新预览图
+        pic.setIcon(icon);
+        // 刷新版权信息
+        pic_info.setText(wallpaper.getCopyright());
+        // 刷新按钮状态
+        btn_download.setEnabled(true);
+        btn_download.setText("开始下载");
+        LogUtil.info(wallpaper.getUrl().toString());
+        LogUtil.info("壁纸加载成功！当前日期代码" + i);
+    }
+
+    /** 图片切换按键监听 */
     public KeyEventPostProcessor getMyKeyEventHandler() {
         return e -> {
             //这里改成KEY_RELEASED，防止按下之后疯狂切换
             if (e.getID() == KeyEvent.KEY_RELEASED) {
                 System.out.println("info：key = '" + KeyEvent.getKeyText(e.getKeyCode())
-                                + "', keycode = " + e.getKeyCode());
+                        + "', keycode = " + e.getKeyCode());
                 // 上翻
                 if (e.getKeyCode() == UP_KEY) {
                     if (dayU < 7) {
@@ -248,25 +269,5 @@ public class GUI {
 
             return true;
         };
-    }
-
-    /**
-     * 刷新处理，刷新整个界面
-     *
-     * @param i 日期标记
-     */
-    static void changePic(int i) {
-        wallpaper = Core.getWallpaper(i);
-        Image image = toolKit.getImage(wallpaper.getUrl());
-        ScaleIcon icon = new ScaleIcon(new ImageIcon(image));
-        // 刷新预览图
-        pic.setIcon(icon);
-        // 刷新版权信息
-        pic_info.setText(wallpaper.getCopyright());
-        // 刷新按钮状态
-        btn_download.setEnabled(true);
-        btn_download.setText("开始下载");
-
-        LogUtil.info("壁纸加载成功！当前日期代码" + i);
     }
 }

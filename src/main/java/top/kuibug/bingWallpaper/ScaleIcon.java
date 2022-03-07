@@ -1,12 +1,8 @@
 package top.kuibug.bingWallpaper;
 
 
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.RenderingHints;
-
-import javax.swing.Icon;
+import javax.swing.*;
+import java.awt.*;
 
 /**
  * 自动将Icon缩放到和窗口一样大小
@@ -32,6 +28,7 @@ public class ScaleIcon implements Icon {
         return icon.getIconWidth();
     }
 
+    @Override
     public void paintIcon(Component c, Graphics g, int x, int y) {
         float wid = c.getWidth();
         float hei = c.getHeight();

@@ -1,11 +1,6 @@
 package top.kuibug.util;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
+import java.io.*;
 
 /**
  * 解决线程之间的冲突
@@ -18,6 +13,7 @@ public class LoopedStreams {
     private final PipedOutputStream pipedOS = new PipedOutputStream();
     private boolean keepRunning = true;
     private final ByteArrayOutputStream byteArrayOS = new ByteArrayOutputStream() {
+        @Override
         public void close() {
             keepRunning = false;
             try {
@@ -31,6 +27,7 @@ public class LoopedStreams {
         }
     };
     private final PipedInputStream pipedIS = new PipedInputStream() {
+        @Override
         public void close() {
             keepRunning = false;
             try {
@@ -75,10 +72,12 @@ public class LoopedStreams {
                         System.exit(1);
                     }
                 } else // 没有数据可用，线程进入睡眠状态
+                {
                     try {
                         // 定时查看ByteArrayOutputStream检查新数据
                         Thread.sleep(REFRESH_TIME);
                     } catch (InterruptedException ignored) {}
+                }
             }
         }).start();
     }

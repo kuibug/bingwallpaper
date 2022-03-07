@@ -72,7 +72,7 @@ public class Di extends JDialog {
             downloadButton.addActionListener(e -> {
                 int day = (int) date.getSelectedItem();
                 int n = (int) size.getSelectedItem();
-                List<Wallpaper> wallpapers = Core.getWallpapers(day, n);
+                List<Wallpaper> wallpapers = Core.getWallpapers(day, n, null);
                 Core.downloadPictures(wallpapers, n);
                 downloadButton.setText("下载完毕！");
                 System.out.println();

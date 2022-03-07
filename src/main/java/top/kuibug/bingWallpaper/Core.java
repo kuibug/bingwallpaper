@@ -29,22 +29,35 @@ public class Core {
         try {
             // 初始化的时候将文件中的变量读取进来
             JSONObject config = JSON.parseObject(Utils.readFileContent("config.json"));
-            if (config.getString("mkt") != null)
+            if (config.getString("mkt") != null) {
                 mkt = config.getString("mkt");
-            if (config.getString("path") != null)
+            }
+            if (config.getString("path") != null) {
                 path = config.getString("path");
-            if (config.getString("name") != null)
+            }
+            if (config.getString("name") != null) {
                 name = config.getString("name");
-            if (config.getString("pixel") != null)
+            }
+            if (config.getString("pixel") != null) {
                 pixel = config.getString("pixel");
-            if (config.getString("cookie") != null)
+            }
+            if (config.getString("cookie") != null) {
                 cookie = config.getString("cookie");
-            if (config.getString("up_key") != null)
+            }
+            if (config.getString("up_key") != null) {
                 GUI.UP_KEY = config.getInteger("up_key");
-            if (config.getString("down_key") != null)
+            }
+            if (config.getString("down_key") != null) {
                 GUI.DOWD_KEY = config.getInteger("down_key");
-            System.out.println("读取配置文件中的参数\n\t区域：" + mkt + "；\n\t保存路径：" + path + "；\n\t命名方式：" + name + "；\n\t图片质量："
-                    + pixel + "；\n\tcookie：" + cookie + "；\n\tup_key：" + GUI.UP_KEY + "；\n\tdown_key：" + GUI.DOWD_KEY);
+            }
+            System.out.println("读取配置文件中的参数\n\t" +
+                    "区域：" + mkt + "；\n\t" +
+                    "保存路径：" + path + "；\n\t" +
+                    "命名方式：" + name + "；\n\t" +
+                    "图片质量：" + pixel + "；\n\t" +
+                    "cookie：" + cookie + "；\n\t" +
+                    "up_key：" + GUI.UP_KEY + "；\n\t" +
+                    "down_key：" + GUI.DOWD_KEY);
         } catch (Exception e) {
             System.out.println("config.json文件不存在或配置错误，将使用默认配置");
         }
@@ -52,7 +65,7 @@ public class Core {
 
     /** 将当前配置读入到配置文件中 */
     static void saveConfig() {
-        StringBuffer buffer = new StringBuffer(127);
+        StringBuilder buffer = new StringBuilder(127);
         buffer.append("{\n\"mkt\": \"");
         buffer.append(mkt);
         buffer.append("\",\n\"path\": \"");
@@ -76,7 +89,7 @@ public class Core {
 
     // 偷懒获取法
     protected static Wallpaper getWallpaper() {
-        return getWallpaper(0);
+        return getWallpaper(0, null);
     }
 
     /**
@@ -86,8 +99,12 @@ public class Core {
      * @param day 日期代码
      * @return Wallpaper
      */
+    protected static Wallpaper getWallpaper(int day, String picPixel) {
+        return getWallpapers(day, 1, picPixel).get(0);
+    }
+
     protected static Wallpaper getWallpaper(int day) {
-        return getWallpapers(day, 1).get(0);
+        return getWallpapers(day, 1, null).get(0);
     }
 
     /**
@@ -96,20 +113,24 @@ public class Core {
      * @param day
      * @param n   （n > 1）
      */
-    protected static List<Wallpaper> getWallpapers(int day, int n) {
+    protected static List<Wallpaper> getWallpapers(int day, int n, String picPixel) {
+        if (picPixel == null) {
+            picPixel = pixel;
+        }
         System.out.println("总共" + n + "张壁纸，正在获取下载链接，请稍等！");
         List<Wallpaper> wallpapers = new ArrayList<>(n);
 
         // 获取信息
         JSONArray infos = Core.getInfo(day, n);
+        String finalPicPixel = picPixel;
         infos.stream().map(info -> (JSONObject) info).forEach(item -> {
             String fileName;
-            if (name.equalsIgnoreCase("link")) {
+            if ("link".equalsIgnoreCase(name)) {
                 fileName = item.getString("urlbase").substring(11);
             } else {
                 fileName = item.getString("startdate");
             }
-            wallpapers.add(new Wallpaper(mkt, path, pixel, item.getString("urlbase"), fileName, item.getString("copyright")));
+            wallpapers.add(new Wallpaper(mkt, path, finalPicPixel, item.getString("urlbase"), fileName, item.getString("copyright")));
         });
 
         return wallpapers;
@@ -132,8 +153,9 @@ public class Core {
             switch (args[index]) {
                 case "-day":
                     tmp = Integer.parseInt(args[index + 1]);
-                    if (tmp > 0)
+                    if (tmp > 0) {
                         day = tmp;
+                    }
                     break;
 
                 case "-path":
@@ -197,7 +219,7 @@ public class Core {
         }
 
         // 国际版临时支持
-        if (Core.mkt.equalsIgnoreCase("us")) {
+        if ("us".equalsIgnoreCase(Core.mkt)) {
             MKT = "en-US";
             setCookie = true;
         } else {
@@ -247,7 +269,7 @@ public class Core {
         for (Wallpaper wallpaper : wallpapers) {
             new Thread(() -> {
                 LogUtil.fine("线程建立");
-                Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+                Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getFileName());
                 System.out.println("\tpic_info:" + wallpaper.getCopyright());
                 System.out.println();
                 pool.countDown();
@@ -300,9 +322,7 @@ public class Core {
                     e.printStackTrace();
                 }
             }
-//            System.out.println(new Date());
             LogUtil.info("下载进程结束");
-//            System.out.println("信息：下载进程结束");
         }
     }
 
@@ -319,14 +339,14 @@ public class Core {
         // 批量获取判断
         if (n > 1) {
             // 开始下载
-            List<Wallpaper> wallpapers = getWallpapers(day, n);
+            List<Wallpaper> wallpapers = getWallpapers(day, n, null);
             downloadPictures(wallpapers, n);
             return;
         }
 
         // 只获取一张
         Wallpaper wallpaper = getWallpaper(day);
-        Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getName());
+        Core.downloadPicture(wallpaper.getUrl(), wallpaper.getPath(), wallpaper.getFileName());
         System.out.println("pic_info:" + wallpaper.getCopyright());
 
         // 判断是是否需要参数
