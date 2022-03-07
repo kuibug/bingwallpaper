@@ -8,7 +8,7 @@
 
 > ~~另外安利一下 [https://bing.ioliu.cn/](https://bing.ioliu.cn/) 这个网站收录了大量的必应壁纸，不过仅包含中国版。极简强迫症患者可以试试~~
 
-> 推荐Windows应用商店的 [动态主体](https://www.microsoft.com/store/productId/9NBLGGH1ZBKW) 里面不仅包含了Bing每日壁纸还有Windows聚焦壁纸。
+> 推荐Windows应用商店的 [动态主题](https://www.microsoft.com/store/productId/9NBLGGH1ZBKW) 里面不仅包含了Bing每日壁纸还有Windows聚焦壁纸。
 
 # 注意
 
